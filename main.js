@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { VRButton } from 'three/addons/webxr/VRButton.js';
+//import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { ARButton } from 'three/addons/webxr/ARButton.js';
 
 /*
                         Three.js Setup
@@ -11,12 +12,13 @@ const scene = new THREE.Scene();
 //Kamera (FoV, AR, Near, Far Render Distance)
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 //Initialisiere Renderer und füge dem DOM hinzu
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
 
 //Initialisiere WebXR & ARButton
 renderer.xr.enabled = true;
-document.body.appendChild(VRButton.createButton(renderer));
+document.body.appendChild(ARButton.createButton(renderer));
 
 document.body.appendChild( renderer.domElement );
 
@@ -87,31 +89,43 @@ Promise.all([p]).then( () => {
     scene.add(model1);
 
     //Starte Render Loop nach dem einladen aller Modelle
-    //animate();
     renderer.setAnimationLoop(animate);
 });
+
+
+function onSelect(){
+    load3DModel('Duck.gltf').then(result => {
+      result.scene.position.set(0,0,-0.3).applyMatrix4( controller.matrixWorld );
+      result.scene.quaternion.setFromRotationMatrix( controller.matrixWorld );
+      result.scene.scale.set(0.2, 0.2, 0.2);
+      scene.add( result.scene );
+    });
+};
+
+let controller = renderer.xr.getController( 0 );
+controller.addEventListener( 'select', onSelect );
+scene.add( controller );
 
 /*
                         Animation Loop
 */
 
-let sessionID = undefined;
-//Rekursiv
+
 function animate(time) {
     time = Math.floor(time*0.01); 
-	//Rekursion bei XR nicht nötig
-    //sessionID = requestAnimationFrame( animate );
-     
     //Model Animation
     model1.position.z = -5;
     //model1.rotation.y += 0.01;
-
     // 0, 0 is the center of the view in normalized coordinates.
     pickHelper.pick({x: 0, y: 0}, scene, camera, time);
-   
+
     //Füge dem Renderer Szene und Camera hinzu
-	renderer.render( scene, camera );
+    render();
 }
+
+function render(){
+    renderer.render( scene, camera);
+};
 
 //renderer.setAnimationLoop(animate);
 
@@ -121,13 +135,14 @@ function animate(time) {
 */
 addEventListener("resize", (event) => {
     if(renderer.xr.enabled === false){
-        cancelAnimationFrame(sessionID);
-
         // Update camera
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix()
         renderer.setSize( window.innerWidth, window.innerHeight );
     };
 })
+
+
+
 
 
