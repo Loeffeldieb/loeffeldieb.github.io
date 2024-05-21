@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './GLTFLoader.js';
 //import { VRButton } from 'three/addons/webxr/VRButton.js';
-import { ARButton } from 'three/addons/webxr/ARButton.js';
+import { ARButton } from './webxr/ARButton.js';
 
 /*
                         Three.js Setup
