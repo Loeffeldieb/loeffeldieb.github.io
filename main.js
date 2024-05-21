@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from './build/three.module.js';
 import { GLTFLoader } from './GLTFLoader.js';
 //import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { ARButton } from './webxr/ARButton.js';
