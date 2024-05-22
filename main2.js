@@ -61,7 +61,7 @@ scene.add( controller2 );
 
 const controllerModelFactory = new XRControllerModelFactory();
 const handModelFactory = new XRHandModelFactory();
-
+/*
 // Hand 1
 controllerGrip1 = renderer.xr.getControllerGrip( 0 );
 controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
@@ -82,7 +82,7 @@ hand2.add( handModelFactory.createHandModel( hand2 ) );
 scene.add( hand2 );
 
 //
-
+*/
 const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
 
 const line = new THREE.Line( geometry );
