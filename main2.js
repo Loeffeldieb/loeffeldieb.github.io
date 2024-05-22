@@ -66,7 +66,7 @@ const handModelFactory = new XRHandModelFactory();
 controllerGrip1 = renderer.xr.getControllerGrip( 0 );
 controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
 scene.add( controllerGrip1 );
-*/
+
 hand1 = renderer.xr.getHand( 0 );
 hand1.add( handModelFactory.createHandModel( hand1 ) );
 
