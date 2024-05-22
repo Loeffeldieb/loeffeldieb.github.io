@@ -52,7 +52,7 @@ controls.update();
 
 
 // controllers
-/*
+
 controller1 = renderer.xr.getController( 0 );
 scene.add( controller1 );
 
@@ -61,7 +61,7 @@ scene.add( controller2 );*/
 
 const controllerModelFactory = new XRControllerModelFactory();
 const handModelFactory = new XRHandModelFactory();
-/*
+
 // Hand 1
 controllerGrip1 = renderer.xr.getControllerGrip( 0 );
 controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
@@ -71,12 +71,12 @@ hand1 = renderer.xr.getHand( 0 );
 hand1.add( handModelFactory.createHandModel( hand1 ) );
 
 scene.add( hand1 );
-/*
+
 // Hand 2
 controllerGrip2 = renderer.xr.getControllerGrip( 1 );
 controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
 scene.add( controllerGrip2 );
-*/
+
 hand2 = renderer.xr.getHand( 1 );
 hand2.add( handModelFactory.createHandModel( hand2 ) );
 scene.add( hand2 );
@@ -89,8 +89,8 @@ const line = new THREE.Line( geometry );
 line.name = 'line';
 line.scale.z = 5;
 
-//controller1.add( line.clone() );
-//controller2.add( line.clone() );
+controller1.add( line.clone() );
+controller2.add( line.clone() );
 
 
 
@@ -164,9 +164,9 @@ function onSelect(){
     });
 };
 
-let controller = renderer.xr.getController( 0 );
-controller.addEventListener( 'select', onSelect );
-scene.add( controller );
+//let controller = renderer.xr.getController( 0 );
+controller1.addEventListener( 'select', onSelect );
+//scene.add( controller );
 
 /*
                         Animation Loop
