@@ -33,21 +33,20 @@ camera.position.set(0, 1.6, 10);
 const light = new THREE.AmbientLight( 0xFFFFFF, 3.0 ); // soft white light
 scene.add( light );
 
-//Orbit Controls
-/*
-controls = new OrbitControls( camera, renderer.domElement );
-controls.target.set( 0, 1.6, 0 );
-controls.update();*/
-
 //Initialisiere WebXR & ARButton
 const sessionInit = {
-  //optionalFeatures: [ 'hand-tracking' ]
-  requiredFeatures: ["hand-tracking"],
+  optionalFeatures: [ 'hand-tracking' ]
+  //requiredFeatures: ["hand-tracking"],
 };
 
 renderer.xr.enabled = true;
 document.body.appendChild(XRButton.createButton(renderer, sessionInit));
 document.body.appendChild( renderer.domElement );
+
+//Orbit Controls
+controls = new OrbitControls( camera, renderer.domElement );
+controls.target.set( 0, 1.6, 0 );
+controls.update();
 
 
 
@@ -123,13 +122,13 @@ class PickHelper {
         // save its color
         this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
         // set its emissive color to flashing red/yellow
-        this.pickedObject.rotation.y += 0.01;
         this.pickedObject.material.emissive.setHex((time) % 2 > 0 ? 0xFFFFFF : 0xFF0000);
+        this.pickedObject.rotation.y += 0.01;
       }
     }
   }
-const pickHelper = new PickHelper();*/
-
+const pickHelper = new PickHelper();
+*/
 
 /*
                         Model einladen durhc erstellen von Promise
@@ -157,9 +156,10 @@ Promise.all([p]).then( () => {
 
 function onSelect(){
     load3DModel('Duck.gltf').then(result => {
-      result.scene.position.set(0,0,-0.3).applyMatrix4( controller.matrixWorld );
+      result.scene.position.set(0,0,-5.0).applyMatrix4( controller.matrixWorld );
       result.scene.quaternion.setFromRotationMatrix( controller.matrixWorld );
       result.scene.scale.set(0.2, 0.2, 0.2);
+
       scene.add( result.scene );
     });
 };
@@ -177,8 +177,9 @@ function animate(time) {
     time = Math.floor(time*0.01); 
     //Model Animation
     model1.position.z = -5;
+
     // 0, 0 is the center of the view in normalized coordinates.
-    //pickHelper.pick({x: 0, y: 0}, scene, camera, time);
+    /*pickHelper.pick({x: 0, y: 0}, scene, camera, time);*/
 
     //Rendert einen Frame
     render();
