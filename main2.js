@@ -57,7 +57,7 @@ controller1 = renderer.xr.getController( 0 );
 scene.add( controller1 );
 
 controller2 = renderer.xr.getController( 1 );
-scene.add( controller2 );*/
+scene.add( controller2 );
 
 const controllerModelFactory = new XRControllerModelFactory();
 const handModelFactory = new XRHandModelFactory();
