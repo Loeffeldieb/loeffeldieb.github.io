@@ -26,7 +26,10 @@ scene.add( light );
 
 //Starte XR mit Button
 const sessionInit = {
-  optionalFeatures: [ 'hand-tracking' ]
+  optionalFeatures: [ 
+    'hand-tracking',
+    'hit-test'
+   ]
 };
 document.body.appendChild(XRButton.createButton(renderer, sessionInit));
 document.body.appendChild( renderer.domElement );
@@ -84,8 +87,10 @@ class PickHelper {
    
       // cast a ray through the frustum
       this.raycaster.setFromCamera(normalizedPosition, camera);
+
       // get the list of objects the ray intersected
       const intersectedObjects = this.raycaster.intersectObjects(scene.children);
+
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
         this.pickedObject = intersectedObjects[0].object;
@@ -100,14 +105,77 @@ class PickHelper {
 const pickHelper = new PickHelper();
 */
 
+// 0, 0 is the center of the view in normalized coordinates.
+/*pickHelper.pick({x: 0, y: 0}, scene, camera, time);*/
+
+
 
 
 /**************************************************************************************************************************
                                             Interaction
 ***************************************************************************************************************************/
 
+//Hit Test Testing
+
+let reticle = new THREE.Mesh(
+  new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+  new THREE.MeshBasicMaterial()
+);
+reticle.matrixAutoUpdate = false;
+reticle.visible = false;
+scene.add( reticle );
+
+
 //Zeichnet Frame
-function render(){
+function render(timestamp, frame){
+  if ( frame ) {
+
+    const referenceSpace = renderer.xr.getReferenceSpace();
+    const session = renderer.xr.getSession();
+
+    if ( hitTestSourceRequested === false ) {
+
+      session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
+
+        session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+
+          hitTestSource = source;
+
+        } );
+
+      } );
+
+      session.addEventListener( 'end', function () {
+
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+
+      } );
+
+      hitTestSourceRequested = true;
+
+    }
+
+    if ( hitTestSource ) {
+
+      const hitTestResults = frame.getHitTestResults( hitTestSource );
+
+      if ( hitTestResults.length ) {
+
+        const hit = hitTestResults[ 0 ];
+
+        reticle.visible = true;
+        reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+
+      } else {
+
+        reticle.visible = false;
+
+      }
+
+    }
+
+  }
   renderer.render( scene, camera);
 };
 
@@ -116,10 +184,6 @@ function animate(time) {
   time = Math.floor(time*0.01); 
   //Model Animation
   model1.position.z = -5;
-
-  // 0, 0 is the center of the view in normalized coordinates.
-  /*pickHelper.pick({x: 0, y: 0}, scene, camera, time);*/
-
   render();
 }
 
