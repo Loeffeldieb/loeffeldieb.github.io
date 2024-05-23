@@ -125,11 +125,13 @@ reticle.matrixAutoUpdate = false;
 reticle.visible = false;
 scene.add( reticle );
 
+let hitTestSource = null;
+let hitTestSourceRequested = false;
+
 
 //Zeichnet Frame
 function render(timestamp, frame){
   if ( frame ) {
-
     const referenceSpace = renderer.xr.getReferenceSpace();
     const session = renderer.xr.getSession();
 
@@ -157,11 +159,10 @@ function render(timestamp, frame){
     }
 
     if ( hitTestSource ) {
-
+    
       const hitTestResults = frame.getHitTestResults( hitTestSource );
 
       if ( hitTestResults.length ) {
-
         const hit = hitTestResults[ 0 ];
 
         reticle.visible = true;
