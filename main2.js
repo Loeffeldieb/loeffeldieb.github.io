@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 
-console.log("loeppt");
+console.log("Hit Test");
 /**************************************************************************************************************************
                                             Three.js Setup   Initialisierung
 ***************************************************************************************************************************/
@@ -128,10 +128,10 @@ scene.add( reticle );
 let hitTestSource = null;
 let hitTestSourceRequested = false;
 
-
 //Zeichnet Frame
 function render(timestamp, frame){
   if ( frame ) {
+    
     const referenceSpace = renderer.xr.getReferenceSpace();
     const session = renderer.xr.getSession();
 
@@ -159,7 +159,6 @@ function render(timestamp, frame){
     }
 
     if ( hitTestSource ) {
-    
       const hitTestResults = frame.getHitTestResults( hitTestSource );
 
       if ( hitTestResults.length ) {
@@ -177,15 +176,17 @@ function render(timestamp, frame){
     }
 
   }
-  renderer.render( scene, camera);
+
+  renderer.render( scene, camera );
 };
 
 //Animation Loop
-function animate(time) {
-  time = Math.floor(time*0.01); 
+//Parameter sind durch setAnimationLoop() gesetzt!
+function animate(timestamp, frame) {
+  timestamp = Math.floor(timestamp*0.01); 
   //Model Animation
   model1.position.z = -5;
-  render();
+  render(timestamp, frame);
 }
 
 let model1;
