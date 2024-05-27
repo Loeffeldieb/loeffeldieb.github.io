@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 
-console.log("Hit Test");
+
 /**************************************************************************************************************************
                                             Three.js Setup   Initialisierung
 ***************************************************************************************************************************/
@@ -67,48 +67,6 @@ const line = new THREE.Line( geometry );
 line.name = 'line';
 line.scale.z = 5;
 controller.add( line.clone() );
-
-/*
-                        PickHelper Class importiert von Three.js examples
-*/
-/*
-class PickHelper {
-    constructor() {
-      this.raycaster = new THREE.Raycaster();
-      this.pickedObject = null;
-      this.pickedObjectSavedColor = 0;
-    }
-    pick(normalizedPosition, scene, camera, time) {
-      // restore the color if there is a picked object
-      if (this.pickedObject) {
-        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
-        this.pickedObject = undefined;
-      }
-   
-      // cast a ray through the frustum
-      this.raycaster.setFromCamera(normalizedPosition, camera);
-
-      // get the list of objects the ray intersected
-      const intersectedObjects = this.raycaster.intersectObjects(scene.children);
-
-      if (intersectedObjects.length) {
-        // pick the first object. It's the closest one
-        this.pickedObject = intersectedObjects[0].object;
-        // save its color
-        this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
-        // set its emissive color to flashing red/yellow
-        this.pickedObject.material.emissive.setHex((time) % 2 > 0 ? 0xFFFFFF : 0xFF0000);
-        this.pickedObject.rotation.y += 0.01;
-      }
-    }
-  }
-const pickHelper = new PickHelper();
-*/
-
-// 0, 0 is the center of the view in normalized coordinates.
-/*pickHelper.pick({x: 0, y: 0}, scene, camera, time);*/
-
-
 
 
 /**************************************************************************************************************************
@@ -180,12 +138,21 @@ function render(timestamp, frame){
   renderer.render( scene, camera );
 };
 
+let pos = new THREE.Vector3(0, 6, -10);
+const gravity = new THREE.Vector3(0,-0.01,0);
+
+scene.enten = [];
+
+
 //Animation Loop
 //Parameter sind durch setAnimationLoop() gesetzt!
 function animate(timestamp, frame) {
-  timestamp = Math.floor(timestamp*0.01); 
-  //Model Animation
-  model1.position.z = -5;
+
+  for(let i = 0; i < scene.enten.length; i++){
+    scene.enten[i].applyForce(gravity);
+    scene.enten[i].updateSpeed();
+  };
+
   render(timestamp, frame);
 }
 
@@ -194,8 +161,28 @@ let p = loadGLTF('Duck.gltf').then(result => {model1 = result.scene});
 
 Promise.all([p]).then( () => {
     // Bearbeite Model
-    model1.position.set(0,0,0);
+    model1.position.set(pos.x,pos.y,pos.z);
+    model1.acceleration = new THREE.Vector3(0,0,0);
+    model1.velocity = new THREE.Vector3(0,0,0);
+    model1.applyForce = function(source){
+        this.acceleration.add(source);
+    };
+    model1.updateSpeed = function(){
+      this.velocity.add(this.acceleration);
+      this.position.add(this.velocity);
+      this.acceleration.multiplyScalar(0);
+    
+      //model1.position.set(pos.x,pos.y,pos.z);
+    
+      if(this.position.y < 0 && this.velocity.y < 0 ){
+        this.velocity.y *= -1.0;
+        this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
+        this.position.y = 0;
+      };
+    };
+
     scene.add(model1);
+    scene.enten.push(model1);
 
     //Starte Render Loop nach dem einladen aller Modelle
     renderer.setAnimationLoop(animate);
@@ -215,10 +202,31 @@ function onSelect(){
     loadGLTF('Duck.gltf').then(result => {
       result.scene.position.set(0,0,-5.0).applyMatrix4( controller.matrixWorld );
       result.scene.quaternion.setFromRotationMatrix( controller.matrixWorld );
-      result.scene.scale.set(0.2, 0.2, 0.2);
+      result.scene.scale.set(0.2,0.2,0.2);
+
+      result.scene.acceleration = new THREE.Vector3(0,0,0);
+      result.scene.velocity = new THREE.Vector3(0,0,0);
+      result.scene.applyForce = function(source){
+        this.acceleration.add(source);
+      };
+      result.scene.updateSpeed = function(){
+        this.velocity.add(this.acceleration);
+        this.position.add(this.velocity);
+        this.acceleration.multiplyScalar(0);
+      
+        //model1.position.set(pos.x,pos.y,pos.z);
+      
+        if(this.position.y < 0 && this.velocity.y < 0 ){
+          this.velocity.y *= -1.0;
+          //this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
+          this.position.y = 0;
+        };
+      };
 
       scene.add( result.scene );
+      scene.enten.push(result.scene);
     });
+
 };
 
 
