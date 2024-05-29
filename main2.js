@@ -88,54 +88,7 @@ let hitTestSourceRequested = false;
 
 //Zeichnet Frame
 function render(timestamp, frame){
-  if ( frame ) {
-    
-    const referenceSpace = renderer.xr.getReferenceSpace();
-    const session = renderer.xr.getSession();
-
-    if ( hitTestSourceRequested === false ) {
-
-      session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
-
-        session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
-
-          hitTestSource = source;
-
-        } );
-
-      } );
-
-      session.addEventListener( 'end', function () {
-
-        hitTestSourceRequested = false;
-        hitTestSource = null;
-
-      } );
-
-      hitTestSourceRequested = true;
-
-    }
-
-    if ( hitTestSource ) {
-      const hitTestResults = frame.getHitTestResults( hitTestSource );
-
-      if ( hitTestResults.length ) {
-        const hit = hitTestResults[ 0 ];
-
-        reticle.visible = true;
-        reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
-
-      } else {
-
-        reticle.visible = false;
-
-      }
-
-    }
-
-  }
-
-  renderer.render( scene, camera );
+  
 };
 
 let pos = new THREE.Vector3(0, 6, -10);
@@ -149,21 +102,62 @@ scene.enten = [];
 function animate(timestamp, frame) {
 
   for(let i = 0; i < scene.enten.length; i++){
-    scene.enten[i].applyForce(gravity);
-    scene.enten[i].updateSpeed();
+    let obj = scene.enten[i];
+    obj.applyForce(gravity);
+    obj.updateSpeed();
   };
 
-  render(timestamp, frame);
+  model1.changeMat();
+
+  //Hit Test Zeug
+  if ( frame ) {
+    const referenceSpace = renderer.xr.getReferenceSpace();
+    const session = renderer.xr.getSession();
+
+    if ( hitTestSourceRequested === false ) {
+      session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
+        session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+          hitTestSource = source;
+        } );
+      } );
+
+      session.addEventListener( 'end', function () {
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+      } );
+
+      hitTestSourceRequested = true;
+    }
+
+    if ( hitTestSource ) {
+      const hitTestResults = frame.getHitTestResults( hitTestSource );
+      if ( hitTestResults.length ) {
+        const hit = hitTestResults[ 0 ];
+        reticle.visible = true;
+        reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+      } else {
+        reticle.visible = false;
+      }
+    }
+  }
+
+  renderer.render( scene, camera );
 }
 
-let model1;
-let p = loadGLTF('Duck.gltf').then(result => {model1 = result.scene});
+let model2;
+let geo = new THREE.BoxGeometry(1, 1, 1)
+let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+let model1 = new THREE.Mesh(geo, mat)
+scene.add(model1);
+
+let p = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 
 Promise.all([p]).then( () => {
     // Bearbeite Model
     model1.position.set(pos.x,pos.y,pos.z);
     model1.acceleration = new THREE.Vector3(0,0,0);
     model1.velocity = new THREE.Vector3(0,0,0);
+
     model1.applyForce = function(source){
         this.acceleration.add(source);
     };
@@ -172,14 +166,27 @@ Promise.all([p]).then( () => {
       this.position.add(this.velocity);
       this.acceleration.multiplyScalar(0);
     
-      //model1.position.set(pos.x,pos.y,pos.z);
-    
       if(this.position.y < 0 && this.velocity.y < 0 ){
         this.velocity.y *= -1.0;
         this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
         this.position.y = 0;
       };
     };
+    
+    model1.changeMat = function(){
+
+      if(this.velocity.y <= 0.1){
+        this.material.color.set(0x00ff00);
+      };
+
+      if(this.velocity.y > 0.1){
+        this.material.color.set(0xff0000);
+      };
+      
+    
+    };
+
+    console.log(model1.material);
 
     scene.add(model1);
     scene.enten.push(model1);
@@ -214,11 +221,9 @@ function onSelect(){
         this.position.add(this.velocity);
         this.acceleration.multiplyScalar(0);
       
-        //model1.position.set(pos.x,pos.y,pos.z);
-      
         if(this.position.y < 0 && this.velocity.y < 0 ){
           this.velocity.y *= -1.0;
-          //this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
+          this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
           this.position.y = 0;
         };
       };
