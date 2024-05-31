@@ -73,8 +73,134 @@ controller.add( line.clone() );
                                             Interaction
 ***************************************************************************************************************************/
 
-//Hit Test Testing
+const gravity = new THREE.Vector3(0,-0.01,0);
+scene.enten = [];
 
+//let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
+let p2 = initialPromise().then( result => {
+  result.position.set(-5,0,-5);
+  scene.add(result);
+});
+
+Promise.all([p2]).then( () => {
+    //Starte Render Loop nach dem einladen aller Modelle
+    renderer.setAnimationLoop(animate);
+});
+
+//Animation Loop
+//Parameter sind durch setAnimationLoop() gesetzt!
+function animate(timestamp, frame) {
+
+  for(let i = 0; i < scene.enten.length; i++){
+    let obj = scene.enten[i];
+    obj.applyForce(gravity);
+    obj.updateSpeed();
+    if(obj.updateAge){
+      obj.updateAge(timestamp);
+      if(obj.age >= 20){
+        scene.remove(obj);
+        scene.enten.splice(i,1)};
+    };
+  };
+
+  renderer.render( scene, camera );
+}
+
+//Select Event 
+controller.addEventListener( 'select', onSelect );
+
+function onSelect(){
+    loadGLTF('Duck.gltf').then(result => {
+      let gltf = result.scene;
+      initDuck(gltf);
+      scene.add( result.scene );
+      scene.enten.push(result.scene);
+    });
+};
+
+/**************************************************************************************************************************
+                                            Functions
+***************************************************************************************************************************/
+function loadGLTF(url){
+  return new Promise(resolve => {
+      new GLTFLoader().load(url,resolve);
+  });
+};
+
+function initialPromise(){
+  return new Promise( resolve => {
+    //Create Plane
+    const g = new THREE.PlaneGeometry( 10, 5 );
+    const m = new THREE.MeshBasicMaterial( {color: 0xff00ff, side: THREE.DoubleSide} );
+    const plane = new THREE.Mesh( g, m );
+    resolve(plane);
+  });
+};
+
+function initDuck(obj){
+  obj.position.set(0,0,-2.0).applyMatrix4( controller.matrixWorld );
+  obj.quaternion.setFromRotationMatrix( controller.matrixWorld );
+  const scaling = Math.random()*0.75;
+  obj.scale.set(scaling, scaling, scaling);
+
+  obj.acceleration = new THREE.Vector3(0,0,0);
+  obj.velocity = new THREE.Vector3(0,0,0);
+  obj.age = 0.0;
+
+  obj.applyForce = function(source){
+      this.acceleration.add(source);
+  };
+  obj.updateSpeed = function(){
+    this.velocity.add(this.acceleration);
+    this.position.add(this.velocity);
+    this.acceleration.multiplyScalar(0);
+  
+    if(this.position.y < 0 && this.velocity.y < 0 ){
+      this.velocity.y *= -0.8;
+      this.velocity.y += gravity.y; // Ich verliere eine Iteration Gravity, sollte nicht so sein!
+      this.position.y = 0;
+    };
+
+    if(Math.abs(this.velocity.y) < 0.01 && this.position.y < 0.1){
+      this.velocity.y = 0;
+      this.position.y = 0;
+    };
+  };
+  
+  obj.changeMat = function(){
+    if(this.velocity.y <= 0.1){
+      this.material.color.set(0x00ff00);
+    };
+
+    if(this.velocity.y > 0.1){
+      this.material.color.set(0xff0000);
+    };
+  };
+
+  obj.updateAge = function(t){
+    if(!this.birth) {this.birth = Math.floor(0.001*t)};
+    this.age = Math.floor(0.001*t)-this.birth;
+  };
+};
+
+
+
+/**************************************************************************************************************************
+                                            Window Resize Event
+***************************************************************************************************************************/
+
+addEventListener("resize", (event) => {
+  //Funktioniert nicht mit XR?
+  if(renderer.xr.enabled === false){
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix()
+      renderer.setSize( window.innerWidth, window.innerHeight );
+  };
+})
+
+
+/*
+//Hit Test Testing
 let reticle = new THREE.Mesh(
   new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
   new THREE.MeshBasicMaterial()
@@ -86,169 +212,36 @@ scene.add( reticle );
 let hitTestSource = null;
 let hitTestSourceRequested = false;
 
-//Zeichnet Frame
-function render(timestamp, frame){
-  
-};
+//Hit Test Zeug für die Animation Loop
+if ( frame ) {
+  const referenceSpace = renderer.xr.getReferenceSpace();
+  const session = renderer.xr.getSession();
 
-let pos = new THREE.Vector3(0, 6, -10);
-const gravity = new THREE.Vector3(0,-0.01,0);
-
-scene.enten = [];
-
-
-//Animation Loop
-//Parameter sind durch setAnimationLoop() gesetzt!
-function animate(timestamp, frame) {
-
-  for(let i = 0; i < scene.enten.length; i++){
-    let obj = scene.enten[i];
-    obj.applyForce(gravity);
-    obj.updateSpeed();
-  };
-
-  model1.changeMat();
-
-  //Hit Test Zeug
-  if ( frame ) {
-    const referenceSpace = renderer.xr.getReferenceSpace();
-    const session = renderer.xr.getSession();
-
-    if ( hitTestSourceRequested === false ) {
-      session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
-        session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
-          hitTestSource = source;
-        } );
+  if ( hitTestSourceRequested === false ) {
+    session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
+      session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+        hitTestSource = source;
       } );
+    } );
 
-      session.addEventListener( 'end', function () {
-        hitTestSourceRequested = false;
-        hitTestSource = null;
-      } );
+    session.addEventListener( 'end', function () {
+      hitTestSourceRequested = false;
+      hitTestSource = null;
+    } );
 
-      hitTestSourceRequested = true;
-    }
-
-    if ( hitTestSource ) {
-      const hitTestResults = frame.getHitTestResults( hitTestSource );
-      if ( hitTestResults.length ) {
-        const hit = hitTestResults[ 0 ];
-        reticle.visible = true;
-        reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
-      } else {
-        reticle.visible = false;
-      }
-    }
+    hitTestSourceRequested = true;
   }
 
-  renderer.render( scene, camera );
+  if ( hitTestSource ) {
+    const hitTestResults = frame.getHitTestResults( hitTestSource );
+    if ( hitTestResults.length ) {
+      const hit = hitTestResults[ 0 ];
+      reticle.visible = true;
+      reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+    } else {
+      reticle.visible = false;
+    }
+  }
 }
 
-let model2;
-let geo = new THREE.BoxGeometry(1, 1, 1)
-let mat = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-let model1 = new THREE.Mesh(geo, mat)
-scene.add(model1);
-
-let p = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
-
-Promise.all([p]).then( () => {
-    // Bearbeite Model
-    model1.position.set(pos.x,pos.y,pos.z);
-    model1.acceleration = new THREE.Vector3(0,0,0);
-    model1.velocity = new THREE.Vector3(0,0,0);
-
-    model1.applyForce = function(source){
-        this.acceleration.add(source);
-    };
-    model1.updateSpeed = function(){
-      this.velocity.add(this.acceleration);
-      this.position.add(this.velocity);
-      this.acceleration.multiplyScalar(0);
-    
-      if(this.position.y < 0 && this.velocity.y < 0 ){
-        this.velocity.y *= -1.0;
-        this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
-        this.position.y = 0;
-      };
-    };
-    
-    model1.changeMat = function(){
-
-      if(this.velocity.y <= 0.1){
-        this.material.color.set(0x00ff00);
-      };
-
-      if(this.velocity.y > 0.1){
-        this.material.color.set(0xff0000);
-      };
-      
-    
-    };
-
-    console.log(model1.material);
-
-    scene.add(model1);
-    scene.enten.push(model1);
-
-    //Starte Render Loop nach dem einladen aller Modelle
-    renderer.setAnimationLoop(animate);
-});
-
-function loadGLTF(url){
-  return new Promise(resolve => {
-      new GLTFLoader().load(url,resolve);
-  });
-};
-
-
-//Select Event 
-controller.addEventListener( 'select', onSelect );
-
-function onSelect(){
-    loadGLTF('Duck.gltf').then(result => {
-      result.scene.position.set(0,0,-5.0).applyMatrix4( controller.matrixWorld );
-      result.scene.quaternion.setFromRotationMatrix( controller.matrixWorld );
-      result.scene.scale.set(0.2,0.2,0.2);
-
-      result.scene.acceleration = new THREE.Vector3(0,0,0);
-      result.scene.velocity = new THREE.Vector3(0,0,0);
-      result.scene.applyForce = function(source){
-        this.acceleration.add(source);
-      };
-      result.scene.updateSpeed = function(){
-        this.velocity.add(this.acceleration);
-        this.position.add(this.velocity);
-        this.acceleration.multiplyScalar(0);
-      
-        if(this.position.y < 0 && this.velocity.y < 0 ){
-          this.velocity.y *= -1.0;
-          this.velocity.y += 0.01; // Ich verliere eine Iteration Grvaity, sollte nicht so sein!
-          this.position.y = 0;
-        };
-      };
-
-      scene.add( result.scene );
-      scene.enten.push(result.scene);
-    });
-
-};
-
-
-/**************************************************************************************************************************
-                                            Window Resize Event
-***************************************************************************************************************************/
-
-addEventListener("resize", (event) => {
-    //Funktioniert nicht mit XR?
-    if(renderer.xr.enabled === false){
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix()
-        renderer.setSize( window.innerWidth, window.innerHeight );
-    };
-})
-
-
-
-
-
+*/
