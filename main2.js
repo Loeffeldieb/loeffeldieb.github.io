@@ -167,7 +167,7 @@ function initialPromise(){
 };
 
 function initDuck(obj){
-  obj.position.set(0,0,-Math.random()*5-1).applyMatrix4( controller.matrixWorld );
+  obj.position.set(0,0,-Math.random()*10-1).applyMatrix4( controller.matrixWorld );
   //obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
   const theta = 360 * Math.random() * (Math.PI / 180);
   obj.rotateY(theta);
@@ -189,20 +189,18 @@ function initDuck(obj){
     this.position.add(this.velocity);
     this.acceleration.multiplyScalar(0);
 
-    let dist = new THREE.Vector2(this.position.x, this.position.y).length();
     
-    if(dist < 5){
-      if(this.position.y < 0 && this.velocity.y < 0 ){
-        this.velocity.y *= -0.8;
-        this.velocity.y += gravity.y; // Ich verliere eine Iteration Gravity, sollte nicht so sein!
-        this.position.y = 0;
-      };
-
-      if(Math.abs(this.velocity.y) < 0.01 && this.position.y < 0.1){
-        this.velocity.y = 0;
-        this.position.y = 0;
-      };
+    if(this.position.y < 0 && this.velocity.y < 0 ){
+      this.velocity.y *= -0.8;
+      this.velocity.y += gravity.y; // Ich verliere eine Iteration Gravity, sollte nicht so sein!
+      this.position.y = 0;
     };
+
+    if(Math.abs(this.velocity.y) < 0.01 && this.position.y < 0.1){
+      this.velocity.y = 0;
+      this.position.y = 0;
+    };
+    
 
   };
   
