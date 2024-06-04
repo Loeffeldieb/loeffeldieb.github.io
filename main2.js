@@ -85,7 +85,7 @@ let p2 = initialPromise().then( (result) => {
     //Create Plane
     
     const m = new THREE.LineBasicMaterial({color: 0xff00ff});
-    const g = new THREE.PlaneGeometry( 40,40 );
+    const g = new THREE.CircleGeometry( 5, 32 );
     const plane = new THREE.Mesh( g, m );
     plane.rotateX((Math.PI / 180) * 270);
     plane.position.set(0,-1.6,0);
@@ -164,7 +164,7 @@ function initialPromise(){
 };
 
 function initDuck(obj){
-  obj.position.set(0,0,-2.0).applyMatrix4( controller.matrixWorld );
+  obj.position.set(0,0,-Math.random()*5-1).applyMatrix4( controller.matrixWorld );
   //obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
   const theta = 360 * Math.random() * (Math.PI / 180);
   obj.rotateY(theta);
