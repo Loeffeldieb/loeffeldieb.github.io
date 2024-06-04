@@ -77,9 +77,11 @@ const gravity = new THREE.Vector3(0,-0.01,0);
 scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
-let p2 = initialPromise().then( result => {
-  result.position.set(-5,0,-5);
-  scene.add(result);
+let p2 = initialPromise().then( (result) => {
+    result.scale.set(5,5,5);
+    result.rotateX(180);
+    result.position.set(0,0,0);
+    scene.add(result);
 });
 
 Promise.all([p2]).then( () => {
@@ -131,8 +133,18 @@ function initialPromise(){
   return new Promise( resolve => {
     //Create Plane
     const g = new THREE.PlaneGeometry( 10, 5 );
+
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load( 'DuckCM.png' );
+    texture.colorSpace = THREE.SRGBColorSpace;
+     
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xFF8844,
+      map: texture,
+    });
+
     const m = new THREE.MeshBasicMaterial( {color: 0xff00ff, side: THREE.DoubleSide} );
-    const plane = new THREE.Mesh( g, m );
+    const plane = new THREE.Mesh( g, material );
     resolve(plane);
   });
 };
