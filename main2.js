@@ -88,7 +88,7 @@ let p2 = initialPromise().then( (result) => {
     const g = new THREE.CircleGeometry( 5, 32 );
     const plane = new THREE.Mesh( g, m );
     plane.rotateX((Math.PI / 180) * 270);
-    plane.position.set(0,-1.6,0);
+    plane.position.set(0,0,0);
     scene.add(plane);
     
 
@@ -106,6 +106,9 @@ function animate(timestamp, frame) {
 
   for(let i = 0; i < scene.enten.length; i++){
     let obj = scene.enten[i];
+
+    if(obj.position.z < -5) obj.age = 19;
+
     //obj.changeMat();
     obj.applyForce(gravity);
     obj.updateSpeed();
@@ -185,17 +188,22 @@ function initDuck(obj){
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
     this.acceleration.multiplyScalar(0);
-  
-    if(this.position.y < 0 && this.velocity.y < 0 ){
-      this.velocity.y *= -0.8;
-      this.velocity.y += gravity.y; // Ich verliere eine Iteration Gravity, sollte nicht so sein!
-      this.position.y = 0;
+
+    let dist = new THREE.Vector2(this.position.x, this.position.y).length();
+    
+    if(dist > 5){
+      if(this.position.y < 0 && this.velocity.y < 0 ){
+        this.velocity.y *= -0.8;
+        this.velocity.y += gravity.y; // Ich verliere eine Iteration Gravity, sollte nicht so sein!
+        this.position.y = 0;
+      };
+
+      if(Math.abs(this.velocity.y) < 0.01 && this.position.y < 0.1){
+        this.velocity.y = 0;
+        this.position.y = 0;
+      };
     };
 
-    if(Math.abs(this.velocity.y) < 0.01 && this.position.y < 0.1){
-      this.velocity.y = 0;
-      this.position.y = 0;
-    };
   };
   
   obj.changeMat = function(){
