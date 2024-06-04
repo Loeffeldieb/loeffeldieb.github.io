@@ -78,8 +78,8 @@ scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
-    result.scale.set(5,5,5);
-    result.rotateX(180);
+    //result.scale.set(5,5,5);
+    //result.rotateX(180);
     result.position.set(0,0,0);
     scene.add(result);
 });
