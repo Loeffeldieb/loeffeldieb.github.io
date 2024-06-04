@@ -147,7 +147,7 @@ function loadGLTF(url){
 function initialPromise(){
   return new Promise( resolve => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load( 'bg2.jpg' );
+    const texture = loader.load( 'bg.jpg' );
     texture.colorSpace = THREE.SRGBColorSpace;
 
     const g = new THREE.SphereGeometry( 20, 32, 16 ); 
