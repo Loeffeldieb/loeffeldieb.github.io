@@ -78,11 +78,9 @@ scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
-    console.log("Plane adjusted");
-    //result.position.set(0,2.5,-5).apply.,applyMatrix4(c);
-    result.position.set(0,2.5,-5).applyMatrix4( controller.matrixWorld );
+    console.log("box placed");
+    result.position.set(0,0.5,-2);
     console.log(result);
-    //result.matrix.setRotationFromQuaternion( quaternion );
     scene.add(result);
 });
 
@@ -117,8 +115,8 @@ function onSelect(){
     loadGLTF('Duck.gltf').then(result => {
       let gltf = result.scene;
       initDuck(gltf);
-      scene.add( result.scene );
       scene.enten.push(result.scene);
+      scene.add(scene.enten[scene.enten.length-1]);
     });
 };
 
@@ -134,15 +132,16 @@ function loadGLTF(url){
 function initialPromise(){
   return new Promise( resolve => {
     //Create Plane
-    const g = new THREE.PlaneGeometry( 10, 5 );
+    //const g = new THREE.PlaneGeometry( 10, 5 );
+    const g = new THREE.BoxGeometry(1,1,1);
 
-    const loader = new THREE.TextureLoader();
-    const texture = loader.load( 'DuckCM.png' );
-    texture.colorSpace = THREE.SRGBColorSpace;
+    //const loader = new THREE.TextureLoader();
+    //const texture = loader.load( 'DuckCM.png' );
+    //texture.colorSpace = THREE.SRGBColorSpace;
      
     const material = new THREE.MeshBasicMaterial({
       color: 0xFF8844,
-      map: texture,
+      //map: texture,
     });
 
     const m = new THREE.MeshBasicMaterial( {color: 0xff00ff, side: THREE.DoubleSide} );
