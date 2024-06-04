@@ -167,7 +167,7 @@ function initialPromise(){
 };
 
 function initDuck(obj){
-  obj.position.set(0,0,-Math.random()*10-1).applyMatrix4( controller.matrixWorld );
+  obj.position.set(0,0,-Math.random()*5).applyMatrix4( controller.matrixWorld );
   //obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
   const theta = 360 * Math.random() * (Math.PI / 180);
   obj.rotateY(theta);
