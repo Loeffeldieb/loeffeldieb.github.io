@@ -78,12 +78,9 @@ scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
-    result.scale.set(5,5,5);
-    result.rotateX(180);
-    result.matrixAutoUpdate = false;
+    result.position.set(0,0,-3);
     //result.position.set(0,0,-2.0).applyMatrix4( controller.matrixWorld );
     //result.quaternion.setFromRotationMatrix( controller.matrixWorld );
-    //result.position.set(0,0,0);
     scene.add(result);
 });
 
@@ -154,7 +151,7 @@ function initialPromise(){
 
 function initDuck(obj){
   obj.position.set(0,0,-2.0).applyMatrix4( controller.matrixWorld );
-  obj.quaternion.setFromRotationMatrix( controller.matrixWorld );
+  //obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
   const scaling = Math.random()*0.75;
   obj.scale.set(scaling, scaling, scaling);
 
