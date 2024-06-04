@@ -73,13 +73,13 @@ controller.add( line.clone() );
                                             Interaction
 ***************************************************************************************************************************/
 
-const gravity = new THREE.Vector3(0,-0.01,0);
+const gravity = new THREE.Vector3(0,-0.005,0);
 scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
     console.log("box placed");
-    result.position.set(0,0,0);
+    result.position.set(0,1,0);
     console.log(result);
 
     //Create Plane
@@ -105,6 +105,7 @@ function animate(timestamp, frame) {
 
   for(let i = 0; i < scene.enten.length; i++){
     let obj = scene.enten[i];
+    //obj.changeMat();
     obj.applyForce(gravity);
     obj.updateSpeed();
     if(obj.updateAge){
@@ -142,7 +143,7 @@ function loadGLTF(url){
 function initialPromise(){
   return new Promise( resolve => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load( 'bg.jpg' );
+    const texture = loader.load( 'bg2.jpg' );
     texture.colorSpace = THREE.SRGBColorSpace;
 
     const g = new THREE.SphereGeometry( 20, 32, 16 ); 
@@ -161,8 +162,13 @@ function initialPromise(){
 function initDuck(obj){
   obj.position.set(0,0,-2.0).applyMatrix4( controller.matrixWorld );
   //obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
-  const scaling = Math.random()*0.75;
+  const theta = 360 * Math.random() * (Math.PI / 180);
+  obj.rotateY(theta);
+  const scaling = Math.random()*0.33;
   obj.scale.set(scaling, scaling, scaling);
+  
+  obj.children[0].children[0].material.color = new THREE.Color(Math.random(), Math.random(), Math.random());
+  obj.children[0].children[0].material.emissive = new THREE.Color(Math.random(), Math.random(), Math.random());
 
   obj.acceleration = new THREE.Vector3(0,0,0);
   obj.velocity = new THREE.Vector3(0,0,0);
@@ -190,11 +196,11 @@ function initDuck(obj){
   
   obj.changeMat = function(){
     if(this.velocity.y <= 0.1){
-      this.material.color.set(0x00ff00);
+      this.children[0].children[0].material.emissive = new THREE.Color(0x0000ff);
     };
 
     if(this.velocity.y > 0.1){
-      this.material.color.set(0xff0000);
+      this.children[0].children[0].material.emissive = new THREE.Color(0xff0000);
     };
   };
 
