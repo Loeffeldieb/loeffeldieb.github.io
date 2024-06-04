@@ -79,7 +79,7 @@ scene.enten = [];
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
     console.log("box placed");
-    result.position.set(0,0.5,-2);
+    result.position.set(0,0,0);
     console.log(result);
 
     //Create Plane
@@ -139,18 +139,20 @@ function loadGLTF(url){
 
 function initialPromise(){
   return new Promise( resolve => {
-    //const loader = new THREE.TextureLoader();
-    //const texture = loader.load( 'DuckCM.png' );
-    //texture.colorSpace = THREE.SRGBColorSpace;
-    const g = new THREE.BoxGeometry(1,1,1);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xFF8844,
-      //map: texture,
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load( 'bg.jpg' );
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    const g = new THREE.SphereGeometry( 10, 32, 16 ); 
+    const m = new THREE.MeshBasicMaterial({
+      //color: 0xFF8844,
+      side: THREE.DoubleSide,
+      map: texture,
     });
 
     //const m = new THREE.MeshBasicMaterial( {color: 0xff00ff, side: THREE.DoubleSide} );
-    const box = new THREE.Mesh( g, material );
-    resolve(box);
+    const sphere = new THREE.Mesh( g, m );
+    resolve(sphere);
   });
 };
 
@@ -262,3 +264,4 @@ if ( frame ) {
 }
 
 */
+
