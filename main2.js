@@ -78,9 +78,9 @@ scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
-    console.log("Upload fertig3");
-    result.position.set(0,0,-5);
-    result.matrixWorldAutoUpdate = false;
+    console.log("Plane adjusted");
+    //result.position.set(0,2.5,-5).apply.,applyMatrix4(c);
+    result.position.set(0,2.5,-5).applyMatrix4( controller.matrixWorld );
     console.log(result);
     //result.matrix.setRotationFromQuaternion( quaternion );
     scene.add(result);
