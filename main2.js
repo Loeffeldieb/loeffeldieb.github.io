@@ -83,11 +83,13 @@ let p2 = initialPromise().then( (result) => {
     console.log(result);
 
     //Create Plane
+    /*
     const m = new THREE.LineBasicMaterial({color: 0xff00ff});
     const g = new THREE.PlaneGeometry( 10, 5 );
     const plane = new THREE.Mesh( g, m );
     plane.position.set(0, 2.5,-2.75);
     scene.add(plane);
+    */
 
     scene.add(result);
 });
