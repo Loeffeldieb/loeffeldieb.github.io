@@ -85,7 +85,7 @@ let p2 = initialPromise().then( (result) => {
     //Create Plane
     
     const m = new THREE.LineBasicMaterial({color: 0xff00ff});
-    const g = new THREE.CircleGeometry( 5, 32 );
+    const g = new THREE.CircleGeometry( 2, 32 );
     const plane = new THREE.Mesh( g, m );
     plane.rotateX((Math.PI / 180) * 270);
     plane.position.set(0,0,0);
