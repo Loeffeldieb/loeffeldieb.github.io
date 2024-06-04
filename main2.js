@@ -191,7 +191,7 @@ function initDuck(obj){
 
     let dist = new THREE.Vector2(this.position.x, this.position.y).length();
     
-    if(dist > 5){
+    if(dist < 5){
       if(this.position.y < 0 && this.velocity.y < 0 ){
         this.velocity.y *= -0.8;
         this.velocity.y += gravity.y; // Ich verliere eine Iteration Gravity, sollte nicht so sein!
