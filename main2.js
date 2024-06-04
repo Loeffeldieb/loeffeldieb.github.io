@@ -78,7 +78,8 @@ scene.enten = [];
 
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
-    result.position.set(0,0,-3);
+    console.log("Upload fertig");
+    result.position.set(0,0,-5);
     //result.position.set(0,0,-2.0).applyMatrix4( controller.matrixWorld );
     //result.quaternion.setFromRotationMatrix( controller.matrixWorld );
     scene.add(result);
