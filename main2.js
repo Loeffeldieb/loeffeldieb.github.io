@@ -83,13 +83,14 @@ let p2 = initialPromise().then( (result) => {
     console.log(result);
 
     //Create Plane
-    /*
+    
     const m = new THREE.LineBasicMaterial({color: 0xff00ff});
-    const g = new THREE.PlaneGeometry( 10, 5 );
+    const g = new THREE.PlaneGeometry( 40,40 );
     const plane = new THREE.Mesh( g, m );
-    plane.position.set(0, 2.5,-2.75);
+    plane.rotateX((Math.PI / 180) * 270);
+    plane.position.set(0,-1.6,0);
     scene.add(plane);
-    */
+    
 
     scene.add(result);
 });
@@ -115,6 +116,9 @@ function animate(timestamp, frame) {
         scene.enten.splice(i,1)};
     };
   };
+
+  //Animate Plane
+  scene.children[4].material.color = new THREE.Color(Math.cos(timestamp*.001), -Math.sin(timestamp*.001), Math.sin(timestamp*.001));
 
   renderer.render( scene, camera );
 }
@@ -143,7 +147,7 @@ function loadGLTF(url){
 function initialPromise(){
   return new Promise( resolve => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load( 'bg.jpg' );
+    const texture = loader.load( 'bg2.jpg' );
     texture.colorSpace = THREE.SRGBColorSpace;
 
     const g = new THREE.SphereGeometry( 20, 32, 16 ); 
