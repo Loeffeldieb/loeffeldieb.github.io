@@ -79,7 +79,7 @@ scene.enten = [];
 //let p1 = loadGLTF('Duck.gltf').then(result => {model2 = result.scene;});
 let p2 = initialPromise().then( (result) => {
     console.log("box placed");
-    result.position.set(0,0,0);
+    result.position.set(0,1,0);
     console.log(result);
 
     //Create Plane
