@@ -153,7 +153,7 @@ function initialPromise(){
     const texture = loader.load( 'bg.jpg' );
     texture.colorSpace = THREE.SRGBColorSpace;
 
-    const g = new THREE.SphereGeometry( 20, 32, 16 ); 
+    const g = new THREE.SphereGeometry( 1, 32, 16 ); 
     const m = new THREE.MeshBasicMaterial({
       //color: 0xFF8844,
       side: THREE.DoubleSide,
