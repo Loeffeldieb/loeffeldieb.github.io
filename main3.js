@@ -3,17 +3,17 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 //XR Spezifisch
-//import { XRButton } from 'three/addons/webxr/XRButton.js';
+import { XRButton } from 'three/addons/webxr/XRButton.js';
 
 
 /**************************************************************************************************************************
                                             Three.js Setup   Initialisierung
 ***************************************************************************************************************************/
 
-const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );  //  <-----
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );  //  <-----
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.xr.enabled = false;                                                    //  <-----
+renderer.xr.enabled = true;                                                    //  <-----
 
 const scene = new THREE.Scene();
 
@@ -38,8 +38,8 @@ orbitControls = new OrbitControls( camera, renderer.domElement );
 orbitControls.target.set( 0, 1.6, 0 );
 orbitControls.update();
 
-/*
-Starte XR mit Button
+
+//Starte XR mit Button
 const sessionInit = {
     optionalFeatures: [ 
         'hand-tracking',
@@ -57,7 +57,62 @@ let controller;
 //Standard Controller
 controller = renderer.xr.getController( 0 );
 scene.add( controller );
-*/
+
+
+/**************************************************************************************************************************
+                                            FragmentShader
+***************************************************************************************************************************/
+const fragmentShader = `
+#include <common>
+ 
+uniform vec3 iResolution;
+uniform float iTime;
+
+vec3 palette(float t)
+{
+    vec3 a = vec3(0.698,0.500, 0.898);
+    vec3 b = vec3(-0.542, 0.500, 0.248);
+    vec3 c = vec3(-0.722, 1.000, 1.000);
+    vec3 d = vec3(0.000, 0.333, 0.938);
+    return a + b*cos( 6.28318*(c*t+d) );
+}
+
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    //Normalize
+    vec2 uv = fragCoord / iResolution.xy * 2.0 - 1.0;
+    uv.x *= iResolution.x / iResolution.y;
+     
+    //Variablen
+    vec3 color = vec3(1.0);
+    
+    vec3 finalColor = vec3(0.0);
+    vec2 uv0 = uv;
+    
+    for(float i = 0.0; i<2.0; i++){
+        uv = fract(uv*2.0) - 0.5;
+
+        float d = length(uv) - 0.9;
+        color = palette(length(uv0) +iTime);
+
+
+        d = sin(d*8.+ iTime*3.0) / 8.;
+        d = abs(d);
+        d = 0.02 / d;
+
+        finalColor += color * d;
+    };
+    
+    //output
+    fragColor = vec4(finalColor, 1.0);
+}
+ 
+void main() {
+  mainImage(gl_FragColor, gl_FragCoord.xy);
+}
+
+`;
 
 /**************************************************************************************************************************
                                             Starte Renderer nach Vorbereitungen wenn nötig
@@ -93,14 +148,20 @@ renderer.setAnimationLoop(animate);
 
 
 function animate(timestamp, frame) {
+    //Shader uniforms
+    const t = timestamp * 0.001;
+    const canvas = renderer.domElement;
+    plane.material.uniforms.iResolution.value.set(canvas.width, canvas.height, 1);
+    plane.material.uniforms.iTime.value = t;
+
+    if( Math.floor(timestamp % 40) == 0 ){
+        let phi = Math.PI / 180 * (360*Math.random());
+        let foo2 = new Mover(new THREE.Vector3(7*Math.sin(phi),0,7*Math.cos(phi)));
+        scene.movers.push(foo2);
+    };
+
     //Animationen
     sphere.material.color = changeColor(timestamp);
-
-    let zeit = Math.floor(timestamp*0.1);
-    let theta = Math.PI / 180 * (360 * Math.random());
-    if(zeit%10 == 0){
-        scene.movers.push(new Mover(new THREE.Vector3( 7*Math.sin(theta), 0, 7*Math.cos(theta) )));
-    };
 
     //Loop durch Mover
     for(let i=0; i<scene.movers.length; i++){
@@ -130,14 +191,30 @@ function animate(timestamp, frame) {
 const sphere = new THREE.Mesh(
     new THREE.SphereGeometry( 1, 32, 16 ),
     new THREE.MeshPhongMaterial({
-        color: 0xFF8844,
-        side: THREE.FrontSide,
+        color: 0xFFFF00,
     })
 );
 
-scene.add(sphere);
 sphere.position.set(0,0,0);
 sphere.name = 'attractor';
+scene.add(sphere);
+
+
+const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(10,10),
+    new THREE.ShaderMaterial({
+        uniforms: {
+            iTime: {value: 0},
+            iResolution: {value: new THREE.Vector3()}
+        },
+        fragmentShader,
+    })
+);
+
+plane.rotateX(Math.PI*-0.5);
+plane.position.set(0,-1,0);
+scene.add(plane);
+
 
 //Klasse für Verfolger
 class Mover{
@@ -208,7 +285,7 @@ function loadGLTF(url){
 
 
 //Select Event 
-//controller.addEventListener( 'select', onSelect );
+controller.addEventListener( 'select', onSelect );
 
 const test = document.getElementsByTagName('canvas')[0];
 test.addEventListener('click', onSelect);
@@ -216,7 +293,8 @@ test.addEventListener('click', onSelect);
 scene.movers = [];
 
 function onSelect(){
-    let foo = new Mover(new THREE.Vector3(0,0,0));
+    let theta = Math.PI / 180 * (360*Math.random());
+    let foo = new Mover(new THREE.Vector3(7*Math.sin(theta),0,7*Math.cos(theta)));
     scene.movers.push(foo);
 };
 
@@ -233,3 +311,5 @@ addEventListener("resize", (event) => {
         renderer.setSize( window.innerWidth, window.innerHeight );
     };
   })
+
+
