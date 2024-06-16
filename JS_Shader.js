@@ -151,9 +151,7 @@ function animate(timestamp, frame) {
     //Shader uniforms
     const t = timestamp * 0.001;
     const canvas = renderer.domElement;
-    const w = plane.geometry.parameters.width;
-    const h = plane.geometry.parameters.height;
-    plane.material.uniforms.iResolution.value.set(w,h, 1);
+    plane.material.uniforms.iResolution.value.set(canvas.width, canvas.height, 1);
     plane.material.uniforms.iTime.value = t;
     
 
