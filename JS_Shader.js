@@ -146,13 +146,18 @@ renderer.setAnimationLoop(animate);
                                             Animation Loop
 ***************************************************************************************************************************/
 
-
+let isSet = false;
 function animate(timestamp, frame) {
     //Shader uniforms
     const t = timestamp * 0.001;
     const canvas = renderer.domElement;
     plane.material.uniforms.iResolution.value.set(canvas.width, canvas.height, 1);
     plane.material.uniforms.iTime.value = t;
+    if(!isSet){
+      console.log(plane);
+      console.log(plane.parameters);
+      isSet = true;
+    };
 
     if( Math.floor(timestamp % 40) == 0 ){
         let phi = Math.PI / 180 * (360*Math.random());
