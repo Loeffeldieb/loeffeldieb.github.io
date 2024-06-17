@@ -62,9 +62,20 @@ scene.add( controller );
 /**************************************************************************************************************************
                                             FragmentShader
 ***************************************************************************************************************************/
-const fragmentShader = `
+const v_shader = `
+varying vec2 v_uv;
+
+void main() {
+    v_uv = uv;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+const f_shader = `
 #include <common>
- 
+varying vec2 v_uv;
+
 uniform vec3 iResolution;
 uniform float iTime;
 
@@ -83,12 +94,14 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     //Normalize
     vec2 uv = fragCoord / iResolution.xy * 2.0 - 1.0;
     uv.x *= iResolution.x / iResolution.y;
+
+    uv = v_uv;
      
     //Variablen
     vec3 color = vec3(1.0);
     
     vec3 finalColor = vec3(0.0);
-    vec2 uv0 = uv;
+    vec2 uv0 = v_uv - 0.5;
     
     for(float i = 0.0; i<2.0; i++){
         uv = fract(uv*2.0) - 0.5;
@@ -153,6 +166,8 @@ function animate(timestamp, frame) {
     const canvas = renderer.domElement;
     plane.material.uniforms.iResolution.value.set(canvas.width, canvas.height, 1);
     plane.material.uniforms.iTime.value = t;
+    sphere.material.uniforms.iResolution.value.set(canvas.width, canvas.height, 1);
+    sphere.material.uniforms.iTime.value = t*0.5;
     
 
     if( Math.floor(timestamp % 40) == 0 ){
@@ -191,8 +206,13 @@ function animate(timestamp, frame) {
 
 const sphere = new THREE.Mesh(
     new THREE.SphereGeometry( 1, 32, 16 ),
-    new THREE.MeshPhongMaterial({
-        color: 0xFFFF00,
+    new THREE.ShaderMaterial({
+        uniforms: {
+            iTime: {value: 0},
+            iResolution: {value: new THREE.Vector3()}
+        },
+        vertexShader: v_shader,
+        fragmentShader: f_shader,
     })
 );
 
@@ -208,7 +228,8 @@ const plane = new THREE.Mesh(
             iTime: {value: 0},
             iResolution: {value: new THREE.Vector3()}
         },
-        fragmentShader,
+        vertexShader: v_shader,
+        fragmentShader: f_shader,
     })
 );
 
