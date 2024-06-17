@@ -9,8 +9,7 @@ import { XRButton } from 'three/addons/webxr/XRButton.js';
                                             Three.js Setup   Initialisierung
 ***************************************************************************************************************************/
 
-const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false
- } );  //  <-----
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );  //  <-----
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.xr.enabled = false;                                                    //  <-----
@@ -59,17 +58,52 @@ const sessionInit = {
 
 // Raycaser für die Maus
 const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-const pointA = {
-  position: new THREE.Vector3(),
-  isSet: 0
-};
-const pointB = {
-  position: new THREE.Vector3(),
-  isSet: 0
-};
+const marker = {
+  isSet: 0b000,
+  planeVector: {
+    a: new THREE.Vector3(0,0,0),
+    b: new THREE.Vector3(0,0,0),
+    c: new THREE.Vector3(0,0,0)
+  },
+  setMarker: function(pos){
+    let c = 0x000000;
 
+    switch(this.isSet){
+      case 0b000:
+        c = 0xFF0000;
+        this.isSet ^= 0b001;
+        this.planeVector.a = pos;
+        break;
+      case 0b001:
+        c = 0x00FF00;
+        this.isSet ^= 0b010;
+        this.planeVector.b = pos;
+        break;
+      case 0b011:
+        c = 0x0000FF;
+        this.isSet ^= 0b100;
+        this.planeVector.c = pos;
+        break;
+      case 0b111:
+        c = 0xFFFF00;
+        this.isSet ^= 0b111;
+        break;
+      default: 
+        c = 0x000000;
+        this.isSet = 0b000;
+        break;
+    };
 
+    const markerBody = new THREE.Mesh(
+      new THREE.SphereGeometry(.05),
+      new THREE.MeshBasicMaterial({
+        color: c
+      })
+    );
+    markerBody.name = 'marker';
+    return markerBody;
+  } 
+};
 
 
 // Variablen für die Hand Erkennung und Controller
@@ -104,10 +138,8 @@ function initialPromise(){
         planeGeo.rotateX(-Math.PI / 2);
         const plane = new THREE.Mesh(
             planeGeo,
-            new THREE.MeshNormalMaterial({
-                //color: 0x272727,
-                //wireframe: true,
-                //map: texture,
+            new THREE.MeshBasicMaterial({
+                map: texture,
                 side: THREE.DoubleSide
             })
         );
@@ -115,9 +147,7 @@ function initialPromise(){
 
         const box = new THREE.Mesh(
           new THREE.BoxGeometry(1,1,1),
-          new THREE.MeshNormalMaterial({
-            color: 0xFF0000
-          })
+          new THREE.MeshNormalMaterial()
         );
         box.position.set(0,0.5,0);
         scene.add(box);
@@ -135,10 +165,6 @@ Promise.all([p]).then( (resolve) => {
     //Starte Loop
     renderer.setAnimationLoop(animate);
 });
-
-
-
-//renderer.setAnimationLoop(animate);
 
 
 
@@ -208,6 +234,7 @@ window.addEventListener( 'click', onClick );
 function onClick( event ) {
 
   //Get Mouse Position (Normalized)
+  const pointer = new THREE.Vector2(0,0);
   pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1; 
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
   //Cast Ray and get Objects
@@ -216,25 +243,56 @@ function onClick( event ) {
   const firstHit = intersects[0];
 
 
-  //Lade Entchen an der Pointer stelle
+  //Lade Objekte an der Pointer stelle
   if(intersects.length > 0){
+    //Lösche alte Marker aus der Scene
+    if(marker.isSet == 0b111) {
+      for(let i=0; i<scene.children.length; i++){
+        let m = scene.getObjectByName('marker');
+        scene.remove(m);
+      };
+      let foo = scene.getObjectByName('marker');
+      scene.remove(foo);
+      marker.isSet ^= 0b111;
+    }else{
 
-      const pointMarker = new THREE.Mesh(
-        new THREE.SphereGeometry(.05),
-        new THREE.MeshBasicMaterial({
-          color: (pointA.isSet==false)?0xFF0000:0x0000FF
-        })
-      );
+      // Setze neuen Marker
+      let pointMarker = marker.setMarker( firstHit.point );
       pointMarker.lookAt( firstHit.face.normal );
       pointMarker.position.copy( firstHit.point );
       scene.add(pointMarker);
 
-      if(pointA.isSet && !pointB.isSet){pointB.isSet |= 1};
-      if(!pointA.isSet){pointA.isSet |= 1};
-      console.table(pointA.isSet, pointB.isSet);
-      //obj.rotateX(Math.PI / 2);
-      
-  };
+      // Zeiche Dreieck durch die Punkte
+      if(marker.isSet == 0b111){
+
+        let v1 = new THREE.Vector3().subVectors(marker.planeVector.b, marker.planeVector.a);;
+        let v2 = new THREE.Vector3().subVectors(marker.planeVector.c, marker.planeVector.a);
+        let v3 = new THREE.Vector3().crossVectors(v1,v2);
+        v3.normalize();
+        let groundNormal = new THREE.Vector3(0,1,0);
+
+        let tri = new THREE.Mesh(
+          new THREE.PlaneGeometry(5,5,1,1),
+          new THREE.MeshBasicMaterial({
+            color: 0xFFFF00,
+          })
+        );
+        tri.name = 'marker';
+        if(v3.dot( groundNormal ) < 0 ) {v3.multiplyScalar(-1)};
+        tri.lookAt(v3);
+        tri.position.copy( marker.planeVector.a );
+        scene.add(tri);
+
+        const table = new THREE.Mesh(
+          new THREE.BoxGeometry(1,1,1,1),
+          new THREE.MeshBasicMaterial({
+            color: 0xFFFF00
+          })
+        );
+      };
+    };// Ende If Else
+
+  };//Ende IF intersection
   
 };
 
@@ -256,49 +314,3 @@ addEventListener("resize", (event) => {
 
 
 
-/*
-//Hit Test Testing
-let reticle = new THREE.Mesh(
-  new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
-  new THREE.MeshBasicMaterial()
-);
-reticle.matrixAutoUpdate = false;
-reticle.visible = false;
-scene.add( reticle );
-
-let hitTestSource = null;
-let hitTestSourceRequested = false;
-
-//Hit Test Zeug für die Animation Loop
-if ( frame ) {
-  const referenceSpace = renderer.xr.getReferenceSpace();
-  const session = renderer.xr.getSession();
-
-  if ( hitTestSourceRequested === false ) {
-    session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
-      session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
-        hitTestSource = source;
-      } );
-    } );
-
-    session.addEventListener( 'end', function () {
-      hitTestSourceRequested = false;
-      hitTestSource = null;
-    } );
-
-    hitTestSourceRequested = true;
-  }
-
-  if ( hitTestSource ) {
-    const hitTestResults = frame.getHitTestResults( hitTestSource );
-    if ( hitTestResults.length ) {
-      const hit = hitTestResults[ 0 ];
-      reticle.visible = true;
-      reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
-    } else {
-      reticle.visible = false;
-    }
-  }
-}
-
-*/
