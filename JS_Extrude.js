@@ -58,6 +58,205 @@ const sessionInit = {
 
 // Raycaser für die Maus
 const raycaster = new THREE.Raycaster();
+
+// Maus Pointer für späteres abtasten
+const pointer = new THREE.Vector2(0,0);
+
+// Speicher Orte für vom Raycaster getroffene Objekte
+const raycasterGroup = new THREE.Group();
+let firstHit; 
+
+// Quaternion für die Drehung des Objektes im Raum
+const markerQuaternion = new THREE.Quaternion();
+
+// Flags für die Platzierung des Objektes
+const machinePlaced = false;
+const machineRoteted = false;
+
+// Variablen für die Hand Erkennung und Controller
+let controller;
+
+// Standard Controller
+controller = renderer.xr.getController( 0 );
+scene.add( controller );
+
+
+
+
+/**************************************************************************************************************************
+                                            Starte Renderer nach Vorbereitungen wenn nötig
+***************************************************************************************************************************/
+
+
+function initialPromise(){
+    return new Promise( resolve => {
+
+        const planeGeo = new THREE.PlaneGeometry(10,10,10,10);
+        planeGeo.rotateX(-Math.PI / 2);
+        const plane = new THREE.Mesh(
+            planeGeo,
+            new THREE.MeshNormalMaterial({
+              wireframe: true
+            })
+        );
+        raycasterGroup.add(plane);
+
+        const box = new THREE.Mesh(
+          new THREE.BoxGeometry(1,1,1),
+          new THREE.MeshNormalMaterial()
+        );
+        box.position.set(0,0.5,0);
+        raycasterGroup.add(box);
+
+        scene.add( raycasterGroup );
+        resolve(`Ground Plane loaded`);
+    });
+};
+
+let p = initialPromise();
+
+Promise.all([p]).then( (resolve) => {
+    //Setup
+    console.log(resolve[0]);
+
+    //Starte Loop
+    renderer.setAnimationLoop(animate);
+});
+
+
+
+/**************************************************************************************************************************
+                                            Animation Loop
+***************************************************************************************************************************/
+
+
+function animate(timestamp, frame) {
+
+    // Animationen
+    
+    // Rendert Frame
+    renderer.render( scene, camera );
+};
+
+
+
+/**************************************************************************************************************************
+                                           Körper
+***************************************************************************************************************************/
+
+// Marker für den Zeiger
+const markerGeo = new THREE.ConeGeometry( .05, .2, 6 );
+markerGeo.translate(0,.1,0);
+const marker = new THREE.Mesh(
+  markerGeo,
+  new THREE.MeshPhongMaterial({
+    color: 0xFF0000,
+  })
+);
+
+// Object was in den Raum gestellt werden soll
+const machineGeo = new THREE.BoxGeometry(1,5,0.25);
+machineGeo.translate(0.5, 2.5, 0.125);
+const machine = new THREE.Mesh(
+  machineGeo,
+  new THREE.MeshBasicMaterial({
+    color: 0xEEEEEE,
+    opacity: 0.5
+  })
+);
+
+/**************************************************************************************************************************
+                                           Funktionen
+***************************************************************************************************************************/
+
+function loadGLTF(url){
+    return new Promise(resolve => {
+        new GLTFLoader().load(url,resolve);
+    });
+};
+
+/**************************************************************************************************************************
+                                            Events
+***************************************************************************************************************************/
+
+
+
+// Select Event 
+controller.addEventListener( 'select', onSelect );
+function onSelect(){
+   
+};
+
+
+// Mouse Move Event
+window.addEventListener( 'pointermove', onPointerMove );
+function onPointerMove( event ) {
+  
+  // Aktualisisere Maus Position (Normalisiert)
+  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1; 
+  pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+  // Raycasting und speichern der getroffenen Objekte
+  raycaster.setFromCamera( pointer, camera );
+  firstHit = raycaster.intersectObjects( raycasterGroup.children )[0];
+
+  //Lade Objekte an der Pointer stelle
+  if(firstHit){
+    
+    // Setze neuen Marker
+    marker.position.copy( firstHit.point );
+    markerQuaternion.setFromUnitVectors( new THREE.Vector3(0,1,0) , firstHit.face.normal);
+    marker.quaternion.copy ( markerQuaternion );
+    scene.add( marker );
+
+};//Ende IF intersection
+
+};
+
+// Mouse click Event
+window.addEventListener( 'click', onClick );
+function onClick( event ) {
+  //Lade Objekte an der Pointer stelle
+  if(firstHit){
+      
+      // Setze Objekt basierend auf marker Position
+      machine.quaternion.copy( markerQuaternion );
+      machine.position.copy( firstHit.point );
+      scene.add( machine );
+
+  };//Ende IF intersection
+  
+};
+
+
+
+/**************************************************************************************************************************
+                                            Window Resize Event
+***************************************************************************************************************************/
+
+addEventListener("resize", (event) => {
+    if(renderer.xr.enabled === false){
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix()
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    };
+});
+
+
+// Zeichnet Linie ausgehend vom Controller
+/*
+const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
+const line = new THREE.Line( geometry );
+line.name = 'line';
+line.scale.z = 5;
+controller.add( line.clone() );
+*/
+
+//obj.position.set(0,0,-Math.random()*5).applyMatrix4( controller.matrixWorld );
+//obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
+
+// Alte MArker Klasser zum binär State testen
+/*
 const marker = {
   isSet: 0b000,
   planeVector: {
@@ -104,213 +303,37 @@ const marker = {
     return markerBody;
   } 
 };
-
-
-// Variablen für die Hand Erkennung und Controller
-let controller;
-
-// Standard Controller
-controller = renderer.xr.getController( 0 );
-scene.add( controller );
-
-
-
-
-/**************************************************************************************************************************
-                                            Starte Renderer nach Vorbereitungen wenn nötig
-***************************************************************************************************************************/
-
-
-function initialPromise(){
-    return new Promise( resolve => {
-
-      // Erstelle die Textur für die Plane
-      const loader = new THREE.TextureLoader();
-      const texture = loader.load('bg.png');
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.magFilter = THREE.NearestFilter;
-      texture.colorSpace = THREE.SRGBColorSpace;
-      const repeats = 10 / 2;
-      texture.repeat.set(repeats, repeats);
-
-        const planeGeo = new THREE.PlaneGeometry(10,10,10,10);
-        planeGeo.rotateX(-Math.PI / 2);
-        const plane = new THREE.Mesh(
-            planeGeo,
-            new THREE.MeshBasicMaterial({
-                map: texture,
-                side: THREE.DoubleSide
-            })
-        );
-        scene.add(plane);
-
-        const box = new THREE.Mesh(
-          new THREE.BoxGeometry(1,1,1),
-          new THREE.MeshNormalMaterial()
-        );
-        box.position.set(0,0.5,0);
-        scene.add(box);
-
-        resolve(`Ground Plane loaded`);
-    });
-};
-
-let p = initialPromise();
-
-Promise.all([p]).then( (resolve) => {
-    //Setup
-    console.log(resolve[0]);
-
-    //Starte Loop
-    renderer.setAnimationLoop(animate);
-});
-
-
-
-/**************************************************************************************************************************
-                                            Animation Loop
-***************************************************************************************************************************/
-
-
-function animate(timestamp, frame) {
-
-    // Animationen
-    
-    // Rendert Frame
-    renderer.render( scene, camera );
-};
-
-
-
-/**************************************************************************************************************************
-                                           Körper
-***************************************************************************************************************************/
-
-// Zeichnet Linie ausgehend vom Controller
-/*
-const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
-const line = new THREE.Line( geometry );
-line.name = 'line';
-line.scale.z = 5;
-controller.add( line.clone() );
 */
 
-//obj.position.set(0,0,-Math.random()*5).applyMatrix4( controller.matrixWorld );
-//obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
 
+// Alte Marker Bedingungen 
+// Zeiche Dreieck durch die Punkte
+/*
+if(marker.isSet == 0b111){
 
-/**************************************************************************************************************************
-                                           Funktionen
-***************************************************************************************************************************/
+  let v1 = new THREE.Vector3().subVectors(marker.planeVector.b, marker.planeVector.a);;
+  let v2 = new THREE.Vector3().subVectors(marker.planeVector.c, marker.planeVector.a);
+  let v3 = new THREE.Vector3().crossVectors(v1,v2);
+  v3.normalize();
+  let groundNormal = new THREE.Vector3(0,1,0);
 
-function loadGLTF(url){
-    return new Promise(resolve => {
-        new GLTFLoader().load(url,resolve);
-    });
+  let tri = new THREE.Mesh(
+    new THREE.PlaneGeometry(5,5,1,1),
+    new THREE.MeshBasicMaterial({
+      color: 0xFFFF00,
+    })
+  );
+  tri.name = 'marker';
+  if(v3.dot( groundNormal ) < 0 ) {v3.multiplyScalar(-1)};
+  tri.lookAt(v3);
+  tri.position.copy( marker.planeVector.a );
+  scene.add(tri);
+
+  const table = new THREE.Mesh(
+    new THREE.BoxGeometry(1,1,1,1),
+    new THREE.MeshBasicMaterial({
+      color: 0xFFFF00
+    })
+  );
 };
-
-/**************************************************************************************************************************
-                                            Events
-***************************************************************************************************************************/
-
-
-
-// Select Event 
-controller.addEventListener( 'select', onSelect );
-function onSelect(){
-   
-};
-
-
-// Mouse Move Event
-window.addEventListener( 'pointermove', onPointerMove );
-function onPointerMove( event ) {
-  
-};
-
-// Mouse click Event
-window.addEventListener( 'click', onClick );
-function onClick( event ) {
-
-  //Get Mouse Position (Normalized)
-  const pointer = new THREE.Vector2(0,0);
-  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1; 
-	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-  //Cast Ray and get Objects
-  raycaster.setFromCamera( pointer, camera );
-  const intersects = raycaster.intersectObjects( scene.children );
-  const firstHit = intersects[0];
-
-
-  //Lade Objekte an der Pointer stelle
-  if(intersects.length > 0){
-    //Lösche alte Marker aus der Scene
-    if(marker.isSet == 0b111) {
-      for(let i=0; i<scene.children.length; i++){
-        let m = scene.getObjectByName('marker');
-        scene.remove(m);
-      };
-      let foo = scene.getObjectByName('marker');
-      scene.remove(foo);
-      marker.isSet ^= 0b111;
-    }else{
-
-      // Setze neuen Marker
-      let pointMarker = marker.setMarker( firstHit.point );
-      pointMarker.lookAt( firstHit.face.normal );
-      pointMarker.position.copy( firstHit.point );
-      scene.add(pointMarker);
-
-      // Zeiche Dreieck durch die Punkte
-      if(marker.isSet == 0b111){
-
-        let v1 = new THREE.Vector3().subVectors(marker.planeVector.b, marker.planeVector.a);;
-        let v2 = new THREE.Vector3().subVectors(marker.planeVector.c, marker.planeVector.a);
-        let v3 = new THREE.Vector3().crossVectors(v1,v2);
-        v3.normalize();
-        let groundNormal = new THREE.Vector3(0,1,0);
-
-        let tri = new THREE.Mesh(
-          new THREE.PlaneGeometry(5,5,1,1),
-          new THREE.MeshBasicMaterial({
-            color: 0xFFFF00,
-          })
-        );
-        tri.name = 'marker';
-        if(v3.dot( groundNormal ) < 0 ) {v3.multiplyScalar(-1)};
-        tri.lookAt(v3);
-        tri.position.copy( marker.planeVector.a );
-        scene.add(tri);
-
-        const table = new THREE.Mesh(
-          new THREE.BoxGeometry(1,1,1,1),
-          new THREE.MeshBasicMaterial({
-            color: 0xFFFF00
-          })
-        );
-      };
-    };// Ende If Else
-
-  };//Ende IF intersection
-  
-};
-
-
-
-/**************************************************************************************************************************
-                                            Window Resize Event
-***************************************************************************************************************************/
-
-addEventListener("resize", (event) => {
-    if(renderer.xr.enabled === false){
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix()
-        renderer.setSize( window.innerWidth, window.innerHeight );
-    };
-});
-
-
-
-
-
+*/
