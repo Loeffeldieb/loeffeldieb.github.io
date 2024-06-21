@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 //XR Spezifisch
 import { XRButton } from 'three/addons/webxr/XRButton.js';
 
+
 /**************************************************************************************************************************
                                             Three.js Setup   Initialisierung
 ***************************************************************************************************************************/
@@ -60,7 +61,7 @@ const sessionInit = {
 const raycaster = new THREE.Raycaster();
 
 // Maus Pointer für späteres abtasten
-const pointer = new THREE.Vector2(0,0);
+const pointer = new THREE.Vector3(0,0,0);
 
 // Speicher Orte für vom Raycaster getroffene Objekte
 const raycasterGroup = new THREE.Group();
@@ -70,8 +71,9 @@ let firstHit;
 const markerQuaternion = new THREE.Quaternion();
 
 // Flags für die Platzierung des Objektes
-const machinePlaced = false;
-const machineRoteted = false;
+let buildModeActivated = false;
+let machineIsPlaced = false;
+let machineIsRotated = false;
 
 // Variablen für die Hand Erkennung und Controller
 let controller;
@@ -165,14 +167,30 @@ const machine = new THREE.Mesh(
   })
 );
 
+const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,2)]);
+const lineMaterial = new THREE.LineBasicMaterial({
+  color: 0xFFFF00
+});
+const rotationLine = new THREE.Line(lineGeometry, lineMaterial);
+scene.add(rotationLine)
+
 /**************************************************************************************************************************
                                            Funktionen
 ***************************************************************************************************************************/
 
 function loadGLTF(url){
-    return new Promise(resolve => {
-        new GLTFLoader().load(url,resolve);
-    });
+  return new Promise(resolve => {
+      new GLTFLoader().load(url,resolve);
+  });
+};
+
+const v1 = new THREE.Vector3(1,0,0);
+const v2 = new THREE.Vector3(0,0,1);
+
+function updateLine(){
+  const dotProduct = v1.angleTo(firstHit.point); 
+  machine.position.lookAt(firstHit.point);
+  console.log(dotProduct);
 };
 
 /**************************************************************************************************************************
@@ -217,15 +235,37 @@ function onPointerMove( event ) {
 window.addEventListener( 'click', onClick );
 function onClick( event ) {
   //Lade Objekte an der Pointer stelle
-  if(firstHit){
+  if(firstHit && buildModeActivated){
       
       // Setze Objekt basierend auf marker Position
       machine.quaternion.copy( markerQuaternion );
       machine.position.copy( firstHit.point );
       scene.add( machine );
-
+      machineIsPlaced = true;
+      
   };//Ende IF intersection
-  
+  updateLine();
+};
+
+// Keyboard Events
+window.addEventListener( 'keyup', manageKeyEvent)
+function manageKeyEvent(event){
+
+  switch (event.key){
+    case 'b':
+    buildModeActivated = !buildModeActivated;
+    console.log(`Bau Modus ist ${buildModeActivated?'an':'aus'}`);
+    break;
+    case 'r':
+    buildModeActivated = false;
+    machineIsPlaced = false;
+    machineIsRotated = false;
+    scene.remove(machine);
+    break;
+    default:
+    break;
+  };
+
 };
 
 
