@@ -33,10 +33,10 @@ document.body.appendChild( renderer.domElement );
 
 
 //Orbit Controls (Bewegen der Szene mit Maus)
-let orbitControls;
-orbitControls = new OrbitControls( camera, renderer.domElement );
-orbitControls.target.set( 0, 1.6, 0 );
-orbitControls.update();
+// let orbitControls;
+// orbitControls = new OrbitControls( camera, renderer.domElement );
+// orbitControls.target.set( 0, 1.6, 0 );
+// orbitControls.update();
 
 
 //Starte XR mit Button
@@ -65,15 +65,15 @@ const pointer = new THREE.Vector3(0,0,0);
 
 // Speicher Orte für vom Raycaster getroffene Objekte
 const raycasterGroup = new THREE.Group();
-let firstHit; 
+let firstHit;
+let normalForPlane;
 
 // Quaternion für die Drehung des Objektes im Raum
-const markerQuaternion = new THREE.Quaternion();
+const quaternionForMarker = new THREE.Quaternion();
 
 // Flags für die Platzierung des Objektes
 let buildModeActivated = false;
 let machineIsPlaced = false;
-let machineIsRotated = false;
 
 // Variablen für die Hand Erkennung und Controller
 let controller;
@@ -133,9 +133,6 @@ Promise.all([p]).then( (resolve) => {
 
 
 function animate(timestamp, frame) {
-
-    // Animationen
-    
     // Rendert Frame
     renderer.render( scene, camera );
 };
@@ -167,6 +164,9 @@ const machine = new THREE.Mesh(
   })
 );
 
+// Unendlichkeits Ebene für den Raycaster nach PLatzierung
+const temporaryPlane = new THREE.Plane();
+
 
 /**************************************************************************************************************************
                                            Funktionen
@@ -179,24 +179,13 @@ function loadGLTF(url){
 };
 
 
-let rotationLine;
-function updateLine(markerPos){
-  scene.remove(rotationLine);
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints([machine.position, markerPos]);
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: 0xFFFF00
-  });
-  rotationLine = new THREE.Line(lineGeometry, lineMaterial);
-  scene.add(rotationLine)
-
-  machine.lookAt(markerPos);
+function updateLine(){
+  
 };
 
 /**************************************************************************************************************************
                                             Events
 ***************************************************************************************************************************/
-
-
 
 // Select Event 
 controller.addEventListener( 'select', onSelect );
@@ -217,32 +206,53 @@ function onPointerMove( event ) {
   raycaster.setFromCamera( pointer, camera );
   firstHit = raycaster.intersectObjects( raycasterGroup.children )[0];
 
-  //Lade Objekte an der Pointer stelle
+  // Setze Marker auf Kollisions Punkt
   if(firstHit){
     
-    // Setze neuen Marker
+
+    //Neue Berechnung der Rotation des Objektes
+    let a = new THREE.Vector3().copy( raycaster.ray.direction );
+    let b = new THREE.Vector3().copy( firstHit.face.normal );
+    let dotProduct = a.dot(b);
+    let divider = a.length() * b.length();
+    let alpha = Math.acos(dotProduct);
+    alpha = THREE.MathUtils.radToDeg(alpha);
+    let rotationAxis = a.cross(b).normalize();
+
+
+    // let line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+    //   firstHit.point, 
+    //   new THREE.Vector3().addVectors(firstHit.point, rotationAxis)
+    // ]));
+    marker.setRotationFromAxisAngle(rotationAxis, alpha);
+    // scene.add(line);
+
+
     marker.position.copy( firstHit.point );
-    markerQuaternion.setFromUnitVectors( new THREE.Vector3(0,1,0) , firstHit.face.normal);
-    marker.quaternion.copy ( markerQuaternion );
+    // quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), firstHit.face.normal);
+    // marker.quaternion.copy ( quaternionForMarker );
     scene.add( marker );
 
+    
+
+
   };//Ende IF intersection
-
-
-  if(machineIsPlaced && firstHit){
-    updateLine(firstHit.point);
-  };
 
 };
 
 // Mouse click Event
 window.addEventListener( 'click', onClick );
 function onClick( event ) {
+
   //Lade Objekte an der Pointer stelle
   if(firstHit && buildModeActivated){
       
+      normalForPlane = firstHit.face.normal;
+      temporaryPlane.set( normalForPlane, firstHit.point);
+      
+      
       // Setze Objekt basierend auf marker Position
-      machine.quaternion.copy( markerQuaternion );
+      machine.quaternion.copy( quaternionForMarker );
       machine.position.copy( firstHit.point );
       scene.add( machine );
       machineIsPlaced = true;
@@ -263,9 +273,7 @@ function manageKeyEvent(event){
     case 'r':
     buildModeActivated = false;
     machineIsPlaced = false;
-    machineIsRotated = false;
     scene.remove(machine);
-    scene.remove(rotationLine);
     break;
     default:
     break;
