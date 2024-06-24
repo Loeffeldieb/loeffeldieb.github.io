@@ -167,12 +167,6 @@ const machine = new THREE.Mesh(
   })
 );
 
-const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,2)]);
-const lineMaterial = new THREE.LineBasicMaterial({
-  color: 0xFFFF00
-});
-const rotationLine = new THREE.Line(lineGeometry, lineMaterial);
-scene.add(rotationLine)
 
 /**************************************************************************************************************************
                                            Funktionen
@@ -184,13 +178,18 @@ function loadGLTF(url){
   });
 };
 
-const v1 = new THREE.Vector3(1,0,0);
-const v2 = new THREE.Vector3(0,0,1);
 
-function updateLine(){
-  const dotProduct = v1.angleTo(firstHit.point); 
-  machine.position.lookAt(firstHit.point);
-  console.log(dotProduct);
+let rotationLine;
+function updateLine(markerPos){
+  scene.remove(rotationLine);
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints([machine.position, markerPos]);
+  const lineMaterial = new THREE.LineBasicMaterial({
+    color: 0xFFFF00
+  });
+  rotationLine = new THREE.Line(lineGeometry, lineMaterial);
+  scene.add(rotationLine)
+
+  machine.lookAt(markerPos);
 };
 
 /**************************************************************************************************************************
@@ -227,7 +226,12 @@ function onPointerMove( event ) {
     marker.quaternion.copy ( markerQuaternion );
     scene.add( marker );
 
-};//Ende IF intersection
+  };//Ende IF intersection
+
+
+  if(machineIsPlaced && firstHit){
+    updateLine(firstHit.point);
+  };
 
 };
 
@@ -244,7 +248,7 @@ function onClick( event ) {
       machineIsPlaced = true;
       
   };//Ende IF intersection
-  updateLine();
+
 };
 
 // Keyboard Events
@@ -261,6 +265,7 @@ function manageKeyEvent(event){
     machineIsPlaced = false;
     machineIsRotated = false;
     scene.remove(machine);
+    scene.remove(rotationLine);
     break;
     default:
     break;
