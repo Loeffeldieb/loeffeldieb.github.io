@@ -16,6 +16,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.xr.enabled = false;                                                    //  <-----
 
 const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xffffff );
 
 //Kamera (FoV, AR, Near, Far Render Distance)
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -65,8 +66,8 @@ const pointer = new THREE.Vector3(0,0,0);
 
 // Speicher Orte für vom Raycaster getroffene Objekte
 const raycasterGroup = new THREE.Group();
-let firstHit;
-let normalForPlane;
+let firstHit; //THREE.object
+let intersect = new THREE.Vector3();
 
 // Quaternion für die Drehung des Objektes im Raum
 const quaternionForMarker = new THREE.Quaternion();
@@ -97,11 +98,7 @@ function initialPromise(){
         planeGeo.rotateX(-Math.PI / 2);
         const plane = new THREE.Mesh(
             planeGeo,
-            new THREE.MeshNormalMaterial({
-              wireframe: true,
-              transparent: true,
-              opacity: 0.5
-            })
+            new THREE.MeshBasicMaterial({color: 0x696969})
         );
         raycasterGroup.add(plane);
 
@@ -161,14 +158,16 @@ machineGeo.translate(0.5, 2.5, 0.125);
 const machine = new THREE.Mesh(
   machineGeo,
   new THREE.MeshBasicMaterial({
-    color: 0xEEEEEE,
-    opacity: 0.5
+    color: 0xDDDDDD
   })
 );
+console.log(machine);
 
 // Unendlichkeits Ebene für den Raycaster nach PLatzierung
 const temporaryPlane = new THREE.Plane();
 
+// Hilfslinie für die Roation
+let lineForRotation;
 
 /**************************************************************************************************************************
                                            Funktionen
@@ -189,20 +188,14 @@ function updateLine(){
                                             Events
 ***************************************************************************************************************************/
 
+let v1;
+let v2;
+
 // Select Event 
 controller.addEventListener( 'select', onSelect );
 function onSelect(){
    
 };
-
-let rotAxe;
-let norm;
-let boom = new THREE.Mesh(
-  new THREE.BoxGeometry(0.25,0.5,0.25),
-  new THREE.MeshBasicMaterial({
-    color: 0xFFFF00
-  })
-);
 
 // Mouse Move Event
 window.addEventListener( 'pointermove', onPointerMove );
@@ -219,45 +212,33 @@ function onPointerMove( event ) {
   // Setze Marker auf Kollisions Punkt
   if(firstHit){
     
-
-    //Neue Berechnung der Rotation des Objektes
-    let a = new THREE.Vector3().copy( raycaster.ray.direction );
-    let b = new THREE.Vector3().copy( firstHit.face.normal );
-    let dotProduct = a.dot(b);
-    let divider = a.length() * b.length();
-    let alpha = Math.acos(dotProduct);
-    alpha = THREE.MathUtils.radToDeg(alpha);
-    let rotationAxis = a.cross(b).normalize();
-    
-
-    scene.remove(rotAxe);
-    rotAxe = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-      firstHit.point, 
-      new THREE.Vector3().addVectors(rotationAxis, firstHit.point)
-    ]));
-    scene.add( rotAxe );
-
-    scene.remove(norm);
-    norm = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-      firstHit.point, 
-      new THREE.Vector3().addVectors(firstHit.face.normal, firstHit.point)
-    ]));
-    scene.add( norm );
-
-    scene.remove( boom );
-    boom.position.copy( new THREE.Vector3().addVectors( new THREE.Vector3(0,0.25,0), firstHit.point) );
-    boom.setRotationFromAxisAngle( rotationAxis, 1 );
-    scene.add( boom );
-
     marker.position.copy( firstHit.point );
-    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), firstHit.face.normal);
+    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), firstHit.face.normal );
     marker.quaternion.copy ( quaternionForMarker );
     scene.add( marker );
 
-    
-
-
   };//Ende IF intersection
+
+  if(machineIsPlaced){
+    raycaster.ray.intersectPlane( temporaryPlane, intersect );
+
+    scene.remove( lineForRotation );
+    lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([machine.position, intersect]));
+    scene.add( lineForRotation );
+
+    //Lege Bezugs Vektor fest
+    v1 = new THREE.Vector3().subVectors( intersect, machine.position );
+    v2 = new THREE.Vector3().crossVectors( v1, temporaryPlane.normal );
+    
+    
+    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), temporaryPlane.normal );
+    marker.quaternion.copy ( quaternionForMarker );
+    machine.quaternion.copy( quaternionForMarker );
+
+    //machine.rotateOnWorldAxis( temporaryPlane.normal, Math.PI * alpha );
+    machine.lookAt( intersect ); // Klappt nicht, weil sich das Objekt dreht
+
+  };
 
 };
 
@@ -265,19 +246,23 @@ function onPointerMove( event ) {
 window.addEventListener( 'click', onClick );
 function onClick( event ) {
 
+  if(buildModeActivated && machineIsPlaced){
+    buildModeActivated = false;
+    machineIsPlaced = false;
+    scene.remove( lineForRotation );
+  };
+
+
   //Lade Objekte an der Pointer stelle
   if(firstHit && buildModeActivated){
       
-      normalForPlane = firstHit.face.normal;
-      temporaryPlane.set( normalForPlane, firstHit.point);
-      
-      
+      temporaryPlane.setFromNormalAndCoplanarPoint( firstHit.face.normal, firstHit.point); 
+
       // Setze Objekt basierend auf marker Position
-      machine.quaternion.copy( quaternionForMarker );
       machine.position.copy( firstHit.point );
       scene.add( machine );
       machineIsPlaced = true;
-      
+
   };//Ende IF intersection
 
 };
@@ -294,7 +279,8 @@ function manageKeyEvent(event){
     case 'r':
     buildModeActivated = false;
     machineIsPlaced = false;
-    scene.remove(machine);
+    scene.remove( machine );
+    scene.remove( lineForRotation )
     break;
     default:
     break;
@@ -316,88 +302,3 @@ addEventListener("resize", (event) => {
     };
 });
 
-//obj.position.set(0,0,-Math.random()*5).applyMatrix4( controller.matrixWorld );
-//obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
-
-// Alte MArker Klasser zum binär State testen
-/*
-const marker = {
-  isSet: 0b000,
-  planeVector: {
-    a: new THREE.Vector3(0,0,0),
-    b: new THREE.Vector3(0,0,0),
-    c: new THREE.Vector3(0,0,0)
-  },
-  setMarker: function(pos){
-    let c = 0x000000;
-
-    switch(this.isSet){
-      case 0b000:
-        c = 0xFF0000;
-        this.isSet ^= 0b001;
-        this.planeVector.a = pos;
-        break;
-      case 0b001:
-        c = 0x00FF00;
-        this.isSet ^= 0b010;
-        this.planeVector.b = pos;
-        break;
-      case 0b011:
-        c = 0x0000FF;
-        this.isSet ^= 0b100;
-        this.planeVector.c = pos;
-        break;
-      case 0b111:
-        c = 0xFFFF00;
-        this.isSet ^= 0b111;
-        break;
-      default: 
-        c = 0x000000;
-        this.isSet = 0b000;
-        break;
-    };
-
-    const markerBody = new THREE.Mesh(
-      new THREE.SphereGeometry(.05),
-      new THREE.MeshBasicMaterial({
-        color: c
-      })
-    );
-    markerBody.name = 'marker';
-    return markerBody;
-  } 
-};
-*/
-
-
-// Alte Marker Bedingungen 
-// Zeiche Dreieck durch die Punkte
-/*
-if(marker.isSet == 0b111){
-
-  let v1 = new THREE.Vector3().subVectors(marker.planeVector.b, marker.planeVector.a);;
-  let v2 = new THREE.Vector3().subVectors(marker.planeVector.c, marker.planeVector.a);
-  let v3 = new THREE.Vector3().crossVectors(v1,v2);
-  v3.normalize();
-  let groundNormal = new THREE.Vector3(0,1,0);
-
-  let tri = new THREE.Mesh(
-    new THREE.PlaneGeometry(5,5,1,1),
-    new THREE.MeshBasicMaterial({
-      color: 0xFFFF00,
-    })
-  );
-  tri.name = 'marker';
-  if(v3.dot( groundNormal ) < 0 ) {v3.multiplyScalar(-1)};
-  tri.lookAt(v3);
-  tri.position.copy( marker.planeVector.a );
-  scene.add(tri);
-
-  const table = new THREE.Mesh(
-    new THREE.BoxGeometry(1,1,1,1),
-    new THREE.MeshBasicMaterial({
-      color: 0xFFFF00
-    })
-  );
-};
-*/
