@@ -33,10 +33,10 @@ document.body.appendChild( renderer.domElement );
 
 
 //Orbit Controls (Bewegen der Szene mit Maus)
-// let orbitControls;
-// orbitControls = new OrbitControls( camera, renderer.domElement );
-// orbitControls.target.set( 0, 1.6, 0 );
-// orbitControls.update();
+let orbitControls;
+orbitControls = new OrbitControls( camera, renderer.domElement );
+orbitControls.target.set( 0, 1.6, 0 );
+orbitControls.update();
 
 
 //Starte XR mit Button
@@ -98,7 +98,9 @@ function initialPromise(){
         const plane = new THREE.Mesh(
             planeGeo,
             new THREE.MeshNormalMaterial({
-              wireframe: true
+              wireframe: true,
+              transparent: true,
+              opacity: 0.5
             })
         );
         raycasterGroup.add(plane);
@@ -193,6 +195,14 @@ function onSelect(){
    
 };
 
+let rotAxe;
+let norm;
+let boom = new THREE.Mesh(
+  new THREE.BoxGeometry(0.25,0.5,0.25),
+  new THREE.MeshBasicMaterial({
+    color: 0xFFFF00
+  })
+);
 
 // Mouse Move Event
 window.addEventListener( 'pointermove', onPointerMove );
@@ -218,19 +228,30 @@ function onPointerMove( event ) {
     let alpha = Math.acos(dotProduct);
     alpha = THREE.MathUtils.radToDeg(alpha);
     let rotationAxis = a.cross(b).normalize();
+    
 
+    scene.remove(rotAxe);
+    rotAxe = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+      firstHit.point, 
+      new THREE.Vector3().addVectors(rotationAxis, firstHit.point)
+    ]));
+    scene.add( rotAxe );
 
-    // let line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-    //   firstHit.point, 
-    //   new THREE.Vector3().addVectors(firstHit.point, rotationAxis)
-    // ]));
-    marker.setRotationFromAxisAngle(rotationAxis, alpha);
-    // scene.add(line);
+    scene.remove(norm);
+    norm = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+      firstHit.point, 
+      new THREE.Vector3().addVectors(firstHit.face.normal, firstHit.point)
+    ]));
+    scene.add( norm );
 
+    scene.remove( boom );
+    boom.position.copy( new THREE.Vector3().addVectors( new THREE.Vector3(0,0.25,0), firstHit.point) );
+    boom.setRotationFromAxisAngle( rotationAxis, 1 );
+    scene.add( boom );
 
     marker.position.copy( firstHit.point );
-    // quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), firstHit.face.normal);
-    // marker.quaternion.copy ( quaternionForMarker );
+    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), firstHit.face.normal);
+    marker.quaternion.copy ( quaternionForMarker );
     scene.add( marker );
 
     
@@ -294,16 +315,6 @@ addEventListener("resize", (event) => {
         renderer.setSize( window.innerWidth, window.innerHeight );
     };
 });
-
-
-// Zeichnet Linie ausgehend vom Controller
-/*
-const geometry = new THREE.BufferGeometry().setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 1 ) ] );
-const line = new THREE.Line( geometry );
-line.name = 'line';
-line.scale.z = 5;
-controller.add( line.clone() );
-*/
 
 //obj.position.set(0,0,-Math.random()*5).applyMatrix4( controller.matrixWorld );
 //obj.quaternion.setFromRotationMatrix( controller.matrixWorld ); //Drehung im Moment Deaktiviert
