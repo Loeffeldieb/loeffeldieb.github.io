@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 //XR Spezifisch
@@ -66,8 +68,9 @@ const pointer = new THREE.Vector3(0,0,0);
 
 // Speicher Orte für vom Raycaster getroffene Objekte
 const raycasterGroup = new THREE.Group();
+const intersect = new THREE.Vector3();
 let firstHit; //THREE.object
-let intersect = new THREE.Vector3();
+let normalWorldSpace;
 
 // Quaternion für die Drehung des Objektes im Raum
 const quaternionForMarker = new THREE.Quaternion();
@@ -84,6 +87,11 @@ controller = renderer.xr.getController( 0 );
 scene.add( controller );
 
 
+// EXTRA Zeug für die Plants
+let plants = [];
+let plant;
+let tempObj;
+
 
 
 /**************************************************************************************************************************
@@ -91,7 +99,7 @@ scene.add( controller );
 ***************************************************************************************************************************/
 
 
-function initialPromise(){
+function setupPromise(){
     return new Promise( resolve => {
 
         const planeGeo = new THREE.PlaneGeometry(10,10,10,10);
@@ -102,11 +110,14 @@ function initialPromise(){
         );
         raycasterGroup.add(plane);
 
+        const boxGeo = new THREE.BoxGeometry(1,1,1);
         const box = new THREE.Mesh(
-          new THREE.BoxGeometry(1,1,1),
+          boxGeo,
           new THREE.MeshNormalMaterial()
         );
-        box.position.set(0,0.5,0);
+        box.rotateX( 180/Math.PI*45 );
+        box.rotateY( 180/Math.PI*45 );
+        box.translateY( -1 );
         raycasterGroup.add(box);
 
         scene.add( raycasterGroup );
@@ -114,9 +125,9 @@ function initialPromise(){
     });
 };
 
-let p = initialPromise();
+let setup = setupPromise();
 
-Promise.all([p]).then( (resolve) => {
+Promise.all([setup]).then( (resolve) => {
     //Setup
     console.log(resolve[0]);
 
@@ -161,7 +172,6 @@ const machine = new THREE.Mesh(
     color: 0xDDDDDD
   })
 );
-console.log(machine);
 
 // Unendlichkeits Ebene für den Raycaster nach PLatzierung
 const temporaryPlane = new THREE.Plane();
@@ -173,23 +183,33 @@ let lineForRotation;
                                            Funktionen
 ***************************************************************************************************************************/
 
-function loadGLTF(url){
-  return new Promise(resolve => {
-      new GLTFLoader().load(url,resolve);
+function loadGLTF( url ){
+  return new Promise( resolve => {
+    new GLTFLoader().load( url, resolve) ;
   });
 };
 
-
-function updateLine(){
-  
+function loadOBJ( url ){
+  return new Promise( resolve => {
+    new OBJLoader().load( url, resolve );
+  });
 };
 
+function loadOBJ2( url1, url2 ){
+
+  return new Promise( resolve => {
+    let objl = new OBJLoader();
+    new MTLLoader().load( url1, mtl => {
+      mtl.preload();
+      objl.setMaterials( mtl );
+    });
+    objl.load( url2, resolve);
+  });
+
+};
 /**************************************************************************************************************************
                                             Events
 ***************************************************************************************************************************/
-
-let v1;
-let v2;
 
 // Select Event 
 controller.addEventListener( 'select', onSelect );
@@ -211,32 +231,38 @@ function onPointerMove( event ) {
 
   // Setze Marker auf Kollisions Punkt
   if(firstHit){
+
+    // Transformiere die getroffene Fläche in den World Space
+    normalWorldSpace = firstHit.face.normal.clone().transformDirection( firstHit.object.matrixWorld ).normalize();
     
+    // Richte den MArker passend zur Fläche aus
     marker.position.copy( firstHit.point );
-    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), firstHit.face.normal );
+    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), normalWorldSpace );
     marker.quaternion.copy ( quaternionForMarker );
     scene.add( marker );
 
   };//Ende IF intersection
 
   if(machineIsPlaced){
+
     raycaster.ray.intersectPlane( temporaryPlane, intersect );
 
+    // scene.remove( lineForRotation );
+    // lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([machine.position, intersect]));
+    // scene.add( lineForRotation );
+
     scene.remove( lineForRotation );
-    lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([machine.position, intersect]));
+    lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([plant.position, intersect]));
     scene.add( lineForRotation );
 
-    //Lege Bezugs Vektor fest
-    v1 = new THREE.Vector3().subVectors( intersect, machine.position );
-    v2 = new THREE.Vector3().crossVectors( v1, temporaryPlane.normal );
-    
-    
     quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), temporaryPlane.normal );
     marker.quaternion.copy ( quaternionForMarker );
-    machine.quaternion.copy( quaternionForMarker );
 
-    //machine.rotateOnWorldAxis( temporaryPlane.normal, Math.PI * alpha );
-    machine.lookAt( intersect ); // Klappt nicht, weil sich das Objekt dreht
+    // machine.up = temporaryPlane.normal;
+    // machine.lookAt( intersect );
+
+    plant.up = temporaryPlane.normal;
+    plant.lookAt( intersect );
 
   };
 
@@ -246,22 +272,36 @@ function onPointerMove( event ) {
 window.addEventListener( 'click', onClick );
 function onClick( event ) {
 
-  if(buildModeActivated && machineIsPlaced){
+  if( buildModeActivated && machineIsPlaced ){
     buildModeActivated = false;
     machineIsPlaced = false;
+    plant = null;
     scene.remove( lineForRotation );
   };
 
 
   //Lade Objekte an der Pointer stelle
-  if(firstHit && buildModeActivated){
-      
-      temporaryPlane.setFromNormalAndCoplanarPoint( firstHit.face.normal, firstHit.point); 
+  if( firstHit && buildModeActivated ){
+    
+    // Erstelle Ebene für die Rotation
+    temporaryPlane.setFromNormalAndCoplanarPoint( normalWorldSpace, firstHit.point);
+    
+    // Setze Objekt basierend auf marker Position
+    //machine.position.copy( firstHit.point );
+    //scene.add( machine );
+    //machineIsPlaced = true;
 
-      // Setze Objekt basierend auf marker Position
-      machine.position.copy( firstHit.point );
-      scene.add( machine );
+    //Platziert Blumen 
+    let rnd = (Math.random()*10) | 0;
+    loadOBJ2(`../obj/${rnd}/${rnd}.mtl`, `../obj/${rnd}/${rnd}.obj`).then( resolve => {
+      plant = resolve;
+      plant.scale.set( 0.01,0.01,0.01 );
+      plant.position.copy( firstHit.point );
+      plant.name = "plant";
+      plants.push( plant );
+      scene.add( plant );
       machineIsPlaced = true;
+    });
 
   };//Ende IF intersection
 
@@ -273,14 +313,20 @@ function manageKeyEvent(event){
 
   switch (event.key){
     case 'b':
-    buildModeActivated = !buildModeActivated;
-    console.log(`Bau Modus ist ${buildModeActivated?'an':'aus'}`);
+      buildModeActivated = !buildModeActivated;
+      console.log(`Bau Modus ist ${buildModeActivated?'an':'aus'}`);
     break;
     case 'r':
-    buildModeActivated = false;
-    machineIsPlaced = false;
-    scene.remove( machine );
-    scene.remove( lineForRotation )
+      buildModeActivated = false;
+      machineIsPlaced = false;
+      plant = null;
+      for(let i=plants.length; i >= 0; i--){
+        let obj = plants[i];
+        scene.remove(obj);
+        plants.splice(i,1)
+      };
+      scene.remove( machine );
+      scene.remove( lineForRotation )
     break;
     default:
     break;
