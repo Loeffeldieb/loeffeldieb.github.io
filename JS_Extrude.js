@@ -16,21 +16,29 @@ const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );  
 renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.xr.enabled = false;                                                    //  <-----
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.5;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0xffffff );
 
 //Kamera (FoV, AR, Near, Far Render Distance)
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.set(0, 3, 10);
-camera.lookAt(0,0,0);
+camera.position.set( 0, 3, 10 );
+camera.lookAt( 0,0,0 );
 camera.updateProjectionMatrix();
 
-const light = new THREE.DirectionalLight(0xFFFFFF, 3);
-light.position.set(0, 10, 0);
-light.target.position.set(-5, 0, 0);
-scene.add(light);
-scene.add(light.target);
+//Licht und Schatten
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const pointLight = new THREE.PointLight( 0xfcf071, 20, 100 );
+pointLight.position.set( 3, 5, 2 );
+pointLight.castShadow = true;
+scene.add( pointLight );
+const ambientLight = new THREE.AmbientLight( 0xFFFFFF, 0.75 );
+scene.add( ambientLight );
+
 
 document.body.appendChild( renderer.domElement );
 
@@ -87,10 +95,10 @@ controller = renderer.xr.getController( 0 );
 scene.add( controller );
 
 
-// EXTRA Zeug für die Plants
+// EXTRA Zeug
 let plants = [];
 let plant;
-let tempObj;
+let menuPos = new THREE.Vector3();
 
 
 
@@ -106,18 +114,27 @@ function setupPromise(){
         planeGeo.rotateX(-Math.PI / 2);
         const plane = new THREE.Mesh(
             planeGeo,
-            new THREE.MeshBasicMaterial({color: 0x696969})
+            new THREE.MeshPhongMaterial({color: 0xDDDD33})
         );
+        plane.receiveShadow = true;
         raycasterGroup.add(plane);
 
         const boxGeo = new THREE.BoxGeometry(1,1,1);
         const box = new THREE.Mesh(
           boxGeo,
-          new THREE.MeshNormalMaterial()
+          new THREE.MeshPhysicalMaterial({
+            color: 0x37ad27,
+            roughness: 0.5,
+            metalness: 0.33,
+            clearcoat: 0.75,
+            clearcoatRoughness: 0.2,
+          })
         );
+        box.translateY( 1.6 );
         box.rotateX( 180/Math.PI*45 );
         box.rotateY( 180/Math.PI*45 );
-        box.translateY( -1 );
+        box.castShadow = true;
+        box.receiveShadow = true;
         raycasterGroup.add(box);
 
         scene.add( raycasterGroup );
@@ -143,6 +160,8 @@ Promise.all([setup]).then( (resolve) => {
 
 
 function animate(timestamp, frame) {
+    // Darstellung des Menus
+    displayMenu();
     // Rendert Frame
     renderer.render( scene, camera );
 };
@@ -158,20 +177,41 @@ const markerGeo = new THREE.ConeGeometry( .05, .2, 6 );
 markerGeo.translate(0,.1,0);
 const marker = new THREE.Mesh(
   markerGeo,
-  new THREE.MeshPhongMaterial({
+  new THREE.MeshPhysicalMaterial({
     color: 0xFF0000,
+    roughness: 0.5,
+    metalness: 0.33,
+    clearcoat: 0.75,
+    clearcoatRoughness: 0.2,
   })
 );
+marker.castShadow = true;
 
 // Object was in den Raum gestellt werden soll
 const machineGeo = new THREE.BoxGeometry(1,5,0.25);
 machineGeo.translate(0.5, 2.5, 0.125);
 const machine = new THREE.Mesh(
   machineGeo,
-  new THREE.MeshBasicMaterial({
-    color: 0xDDDDDD
+  new THREE.MeshPhysicalMaterial({
+    color: 0xFF00FF,
+    roughness: 0.5,
+    metalness: 0.75,
+    clearcoat: 0.33,
+    clearcoatRoughness: 0.1,
   })
 );
+machine.castShadow = true;
+
+// Box für PopUp Menu
+const menu = new THREE.Mesh(
+  new THREE.BoxGeometry(1,0.5,0.1),
+  new THREE.MeshBasicMaterial({
+    color: 0xd4d4d4
+  })
+);
+menu.visible = false;
+scene.add( menu );
+
 
 // Unendlichkeits Ebene für den Raycaster nach PLatzierung
 const temporaryPlane = new THREE.Plane();
@@ -196,7 +236,6 @@ function loadOBJ( url ){
 };
 
 function loadOBJ2( url1, url2 ){
-
   return new Promise( resolve => {
     let objl = new OBJLoader();
     new MTLLoader().load( url1, mtl => {
@@ -205,7 +244,16 @@ function loadOBJ2( url1, url2 ){
     });
     objl.load( url2, resolve);
   });
+};
 
+// Funktion zum darstellen des Menus
+function displayMenu(){
+  camera.getWorldDirection( menuPos );
+  menuPos.normalize();
+  menuPos.multiplyScalar( 1 );
+  menuPos.add( camera.position );
+  menu.position.copy( menuPos );
+  menu.lookAt( camera.position );
 };
 /**************************************************************************************************************************
                                             Events
@@ -247,19 +295,19 @@ function onPointerMove( event ) {
 
     raycaster.ray.intersectPlane( temporaryPlane, intersect );
 
+    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), temporaryPlane.normal );
+    marker.quaternion.copy ( quaternionForMarker );
+
     // scene.remove( lineForRotation );
     // lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([machine.position, intersect]));
     // scene.add( lineForRotation );
 
+    // machine.up = temporaryPlane.normal;
+    // machine.lookAt( intersect );
+
     scene.remove( lineForRotation );
     lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([plant.position, intersect]));
     scene.add( lineForRotation );
-
-    quaternionForMarker.setFromUnitVectors( new THREE.Vector3(0,1,0), temporaryPlane.normal );
-    marker.quaternion.copy ( quaternionForMarker );
-
-    // machine.up = temporaryPlane.normal;
-    // machine.lookAt( intersect );
 
     plant.up = temporaryPlane.normal;
     plant.lookAt( intersect );
@@ -275,6 +323,8 @@ function onClick( event ) {
   if( buildModeActivated && machineIsPlaced ){
     buildModeActivated = false;
     machineIsPlaced = false;
+    menu.visible = false;
+    raycasterGroup.remove( menu );
     plant = null;
     scene.remove( lineForRotation );
   };
@@ -287,9 +337,9 @@ function onClick( event ) {
     temporaryPlane.setFromNormalAndCoplanarPoint( normalWorldSpace, firstHit.point);
     
     // Setze Objekt basierend auf marker Position
-    //machine.position.copy( firstHit.point );
-    //scene.add( machine );
-    //machineIsPlaced = true;
+    // machine.position.copy( firstHit.point );
+    // scene.add( machine );
+    // machineIsPlaced = true;
 
     //Platziert Blumen 
     let rnd = (Math.random()*10) | 0;
@@ -298,10 +348,15 @@ function onClick( event ) {
       plant.scale.set( 0.01,0.01,0.01 );
       plant.position.copy( firstHit.point );
       plant.name = "plant";
+      for(let i=0; i<plant.children.length; i++){
+        plant.children[i].castShadow = true;
+        plant.children[i].material.shininess = 20;
+      };
       plants.push( plant );
       scene.add( plant );
       machineIsPlaced = true;
     });
+
 
   };//Ende IF intersection
 
@@ -314,6 +369,8 @@ function manageKeyEvent(event){
   switch (event.key){
     case 'b':
       buildModeActivated = !buildModeActivated;
+      menu.visible = !menu.visible;
+      if(menu.visible){raycasterGroup.add( menu )}else{raycasterGroup.remove( menu )};
       console.log(`Bau Modus ist ${buildModeActivated?'an':'aus'}`);
     break;
     case 'r':
@@ -327,6 +384,7 @@ function manageKeyEvent(event){
       };
       scene.remove( machine );
       scene.remove( lineForRotation )
+      console.log( scene.children.length );
     break;
     default:
     break;
