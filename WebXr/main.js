@@ -165,3 +165,62 @@ window.addEventListener( 'pointermove', ( e ) => {
 window.addEventListener( 'click', ( e ) => {
     game.onPointerClick( e );
 });
+
+
+/**************************************************************************************************************************
+                                           Events
+***************************************************************************************************************************/
+/*
+
+
+//Füller Promis Array
+for(let i=0; i<plants.length;i++){
+    plants[i] = form.loadOBJ(`../obj/${i}/${i}.mtl`,`../obj/${i}/${i}.obj`);
+    cards[i] = new THREE.Group();
+  };
+  
+  //Starte Render Loop erst nachdem alle Objekte eingeladen wurden
+  Promise.all(plants).then( values => {
+  
+    //Init
+    plants = values;
+    scene.add( controller );
+    raycasterGroup.add( form.plane );
+    raycasterGroup.add( form.box );
+    scene.add( raycasterGroup );
+  
+  
+    let w = 0.5;
+    let h = 0.75;
+    let offset = 0.25;
+    let counter = 0;
+  
+    for(let i=0; i<plants.length; i++){
+      let foo = new THREE.Mesh(
+        new THREE.PlaneGeometry(w,h,2,2),
+        new THREE.MeshPhongMaterial({
+          color: 0x00FFFF,
+          side: THREE.DoubleSide
+        })
+      );
+  
+      plants[i].scale.set( 0.01, 0.01, 0.01 );
+      plants[i].position.set( 0, -0.25, 0 );
+      cards[i].add(plants[i]);
+      foo.position.set( 0, 0, -0.3 );
+      cards[i].add( foo );
+  
+      if(i%3==0)counter++;
+      cards[i].position.set( (w+offset)*(i%3), (offset+h)*counter, 0 );
+  
+      menu.add( cards[i] );
+    }; // Ende For Schleife
+  
+  
+    console.log("Setup fertig starte Render Loop");
+    renderer.setAnimationLoop( animate );
+  });
+
+
+  */
+
