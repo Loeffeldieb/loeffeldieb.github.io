@@ -8,6 +8,7 @@ class Enviroment{
     constructor(){
         this._init();
         this._basicSetup();
+        this._createTestPlane();
     };
 
     _init(){
@@ -72,6 +73,20 @@ class Enviroment{
 
     removeFromScene( obj ){
         this.scene.remove( obj );
+    };
+
+    _createTestPlane(){
+        let testPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(3,3,3,3),
+            new THREE.MeshBasicMaterial({
+                color: 0x272727,
+                wireframe: true
+            })
+        );
+        testPlane.position.set( 0,1.5,-3 );
+        this.scene.add( testPlane );
+        this.indexArray = testPlane.geometry.getIndex().array;
+        console.log( this.indexArray );
     };
 
 };
