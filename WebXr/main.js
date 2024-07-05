@@ -23,7 +23,7 @@ class Game{
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         this.renderer.xr.enabled = false;                                                    //  <-----
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.5;
+        this.renderer.toneMappingExposure = 3.0;
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.appendChild( this.renderer.domElement );
@@ -38,6 +38,12 @@ class Game{
         //Klasse für die Interactiven Elemente
         this.objHandler = new interactiveObjects();
 
+        //Preload Interactive Objects und erstelle menu
+        this.objHandler.preloadMenuObjects( () => {
+            this.gui.createMenu( this.objHandler.menuObjects );
+        });
+
+
         //Starte XR mit Button
         const sessionInit = {
             optionalFeatures: [ 
@@ -45,14 +51,14 @@ class Game{
                 'hit-test'
                 ]
         };
-
         //document.body.appendChild(XRButton.createButton( this.renderer, sessionInit ));      // <-----
 
     }; // Ende _Init
-
+    
     startLoop(){
         // setAnimationLoop() zwingend notwendig für XR Anwendungen
-        this.renderer.setAnimationLoop( () => {
+        this.renderer.setAnimationLoop( (timestamp, frame) => {
+            this.env.animateShader( timestamp, this.renderer.domElement.width, this.renderer.domElement.height );
             this._drawFrame();
         });
     };
@@ -82,6 +88,11 @@ class Game{
             this.env.scene.remove( this.objHandler.testObj );
             this.env.scene.remove( this.gui.lineForRotation )
             console.log( "Delete" );
+            break;
+            case 'q':
+                this.gui.menuVisible = !this.gui.menuVisible;
+                if(this.gui.menuVisible) { this.env.scene.add( this.gui.menuGroup ) }
+                else { this.env.scene.remove( this.gui.menuGroup ) };
             break;
             default:
             break;
@@ -167,6 +178,7 @@ window.addEventListener( 'click', ( e ) => {
 });
 
 
+
 /**************************************************************************************************************************
                                            Events
 ***************************************************************************************************************************/
@@ -223,4 +235,3 @@ for(let i=0; i<plants.length;i++){
 
 
   */
-
