@@ -1,3 +1,4 @@
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 
 /**************************************************************************************************************************
@@ -16,8 +17,18 @@ class interactiveObjects{
         this.objectSelected = false;
         //Flag, dguckt, ob das Objekt platziert wurde
         this.activeObjectIsPlaced = false;
-
-        this._createTestObject();
+        //Erstelle GLTF Loader
+        this.GLTFLoader = new GLTFLoader();
+        //Flag für die Bestätigung dass objekte geladen wurden
+        this.menuObjectsLoaded = false;
+        //Einladen des TestObjektes
+        this._loadGLTF( "./gltf/bunny/scene.gltf" ).then( result => {
+            this.testObj = result.scene;
+            this.testObj.children[0].scale.set( 0.4,0.4,0.4 );
+            this.testObj.children[0].position.set( 0,0.35,0 );
+            this.testObj.children[0].children[0].children[0].children[0].children[0].castShadow = true;
+            this.testObj.children[0].children[0].children[0].children[0].children[0].material.color.set( 0xe56b84 );
+        });
     };
 
     _createTestObject(){
@@ -34,6 +45,31 @@ class interactiveObjects{
             })
           );
         this.testObj.castShadow = true;
+    };
+
+
+    _loadGLTF( url ){
+        return new Promise( resolve => {
+            this.GLTFLoader.load( url, resolve) ;
+        });
+    };
+
+    preloadMenuObjects( callback ){
+        //Array für die Menu Objekte
+        this.menuObjects = new Array( 2 );
+
+        Promise.all([
+            this._loadGLTF( './gltf/bunny/scene.gltf' ),
+            this._loadGLTF( './gltf/ente/Duck.gltf' )
+        ]).then( (result) => { 
+            for(let i=0; i<result.length; i++){
+                this.menuObjects[i] = result[i].scene;
+            };
+            this.menuObjectsLoaded = true;
+
+            //Callback
+            callback();
+         });
     };
 };
 
