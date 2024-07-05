@@ -29,6 +29,9 @@ class GUI{
         // Hilfslinie vom Objekt zum Marker
         this.lineForRotation = new THREE.Line();
 
+        //Flag, ob das Menu angezeigt wird
+        this.menuVisible = false;
+
         this._createMarker();
     };
 
@@ -85,6 +88,27 @@ class GUI{
     createLine( origin, target ){
         this.lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ origin, target ]));
     };
+
+    createMenu( objectsArray ){
+        //Create Menu --> später  Add/remove from scene
+        this.menuGroup = new THREE.Group();
+        //Bestimme Breite und Höhe des Rasters
+        const w = 3;
+        const h = 3;
+        let counter = 0;
+        //Erstelle Raster
+        for(let i=0; i<objectsArray.length; i++){
+            if( i%w ){ counter++ };
+            objectsArray[i].position.set( i*0.75,counter*1,0 );
+            this.menuGroup.add( objectsArray[i] );
+        };
+
+        //Lade 9 Objecte vor
+        //Ordne Objecte in Raster an
+        //Animation on hover
+        //onClick kopiere Obj und binde es an den cursor
+    }; 
+
 
 };
 
