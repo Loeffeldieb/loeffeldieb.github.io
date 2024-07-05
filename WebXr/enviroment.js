@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { _vs, _fs } from './shaders.js';
 
 /**************************************************************************************************************************
                                             Klasse für die darstellung der Szene
@@ -23,7 +24,7 @@ class Enviroment{
         this.camera.updateProjectionMatrix();
 
         //Licht
-        const pointLight = new THREE.PointLight( 0xfcf071, 20, 100 );
+        const pointLight = new THREE.PointLight( 0xFFFFFF, 20, 100 );
         pointLight.position.set( 3, 5, 2 );
         pointLight.castShadow = true;
         this.scene.add( pointLight );
@@ -76,17 +77,55 @@ class Enviroment{
     };
 
     _createTestPlane(){
-        let testPlane = new THREE.Mesh(
+        this.shader_mat = new THREE.ShaderMaterial({
+            uniforms: {
+                iTime: {value: 0},
+                iResolution: {value: new THREE.Vector3()}
+            },
+            vertexShader: _vs,
+            fragmentShader: _fs,
+        });
+
+        const testPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(3,3,3,3),
-            new THREE.MeshBasicMaterial({
-                color: 0x272727,
-                wireframe: true
-            })
+            this.shader_mat,
         );
         testPlane.position.set( 0,1.5,-3 );
-        this.scene.add( testPlane );
-        this.indexArray = testPlane.geometry.getIndex().array;
-        console.log( this.indexArray );
+        testPlane.castShadow = true;
+        testPlane.receiveShadow = true;
+        
+        
+        this.indexArray = testPlane.geometry.index.array;
+        this.positionArray = Array.from( testPlane.geometry.attributes.position.array );
+
+        for(let i=0; i<this.indexArray.length; i+=3){
+            if(i==24){
+                this.a = this.indexArray[i];
+                this.b = this.indexArray[i+1];
+                this.c = this.indexArray[i+2];
+            }
+        };
+
+        for( let i=this.positionArray.length; i>=0; i-- ){
+            if( i==this.a || i==this.b || i==this.c ){
+                this.positionArray.splice(i,1);
+            };
+        };
+
+        let newT =  new Float32Array( this.positionArray );
+        //console.log( testPlane.geometry.attributes.position.array );
+
+        
+        // console.log( testPlane.geometry.attributes.position.array );
+        // console.log( testPlane.geometry.index.array);
+
+        this.raycasterGroup.add( testPlane );
+    };
+
+    animateShader( time, w, h ){
+        const t = time * 0.001;
+        this.shader_mat.uniforms.iResolution.value.set(w, h, 1);
+        this.shader_mat.uniforms.iTime.value = t;
     };
 
 };
