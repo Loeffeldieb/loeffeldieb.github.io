@@ -92,15 +92,36 @@ class GUI{
     createMenu( objectsArray ){
         //Create Menu --> später  Add/remove from scene
         this.menuGroup = new THREE.Group();
+
         //Bestimme Breite und Höhe des Rasters
         const w = 3;
         const h = 3;
-        let counter = 0;
+
+        //Counter für Positionierung in der Höhe
+        let counter = -1;
         //Erstelle Raster
+
         for(let i=0; i<objectsArray.length; i++){
-            if( i%w ){ counter++ };
-            objectsArray[i].position.set( i*0.75,counter*1,0 );
+
+            if( i%w == 0 ){ counter++ };
+            let xPos = (i%w)*1.1;
+            let yPos = counter*1.1;
+
+            //Placeholder
+            let plate = new THREE.Mesh(
+                new THREE.BoxGeometry( 1, 1, 0.05 ),
+                new THREE.MeshBasicMaterial({
+                    color: 0xFFFFFF
+                })
+            )
+
+            //Placeholder
+            plate.position.set( xPos, yPos, 0 );
+            this.menuGroup.add( plate );
+
+            objectsArray[i].position.set( xPos,yPos,0 );
             this.menuGroup.add( objectsArray[i] );
+
         };
 
         //Lade 9 Objecte vor
