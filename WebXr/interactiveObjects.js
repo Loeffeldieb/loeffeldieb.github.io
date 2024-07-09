@@ -82,23 +82,23 @@ class interactiveObjects{
                 //das hier ist scheiße
                 switch (i){
                     case 0:
-                        console.log( result[i].scene );
-                        //result[i].scene.children[0].children[0].children[0].children[0].children[0].position.set( 0,-0.25,0 );
+                        result[i].scene.children[0].children[0].children[0].children[0].position.set( 0,-0.71,0 );
                         break;
                     case 1:
-                        result[i].scene.position.set( 0,-5,0 );
+                        result[i].scene.children[0].position.set( 0,-0.925,0 );
                         break;
                     case 2:
-                        result[i].scene.position.set( 0,0,0 );
+                        result[i].scene.children[0].position.set( 0,-1.05,0 );
                         break;
                     case 3:
-                        result[i].scene.position.set( 0,0,0 );
+                        result[i].scene.children[0].position.set( 0,-0.9,0 );
+                        result[i].scene.children[0].children[0].rotateY( Math.PI / 2 );
                         break;
                     case 4:
-                        result[i].scene.position.set( 0,0,0 );
+                        result[i].scene.children[0].position.set( 0,-1.8,0 );
                         break;
                     case 5:
-                        result[i].scene.position.set( 0,0,0 );
+                        result[i].scene.children[0].position.set( -1.8,-1.85,1 );
                         break;
                 };
                 this.menuObjects[i] = result[i].scene;
