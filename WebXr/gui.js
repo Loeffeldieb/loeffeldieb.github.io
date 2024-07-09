@@ -89,22 +89,25 @@ class GUI{
         this.lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ origin, target ]));
     };
 
+
     createMenu( objectsArray ){
         //Create Menu --> später  Add/remove from scene
         this.menuGroup = new THREE.Group();
 
         //Bestimme Breite und Höhe des Rasters
         const w = 3;
-        const h = 3;
 
         //Counter für Positionierung in der Höhe
         let counter = -1;
-        //Erstelle Raster
 
+        //Erstelle Raster
         for(let i=0; i<objectsArray.length; i++){
+            //Erstelle Gruppe für einzelnes Grid Element
+            let gridCard = new THREE.Group();
+            gridCard.name = 'gridCard';
 
             if( i%w == 0 ){ counter++ };
-            let xPos = (i%w)*1.1;
+            let xPos = (i%w)*1.1 - 1;
             let yPos = counter*1.1;
 
             //Placeholder
@@ -116,20 +119,57 @@ class GUI{
             )
 
             //Placeholder
-            plate.position.set( xPos, yPos, 0 );
-            this.menuGroup.add( plate );
+            plate.position.set( xPos, yPos, -1 );
+            gridCard.add( plate );
 
             objectsArray[i].position.set( xPos,yPos,0 );
-            this.menuGroup.add( objectsArray[i] );
+            gridCard.add( objectsArray[i] );
 
+            this.menuGroup.add( gridCard );
         };
-
-        //Lade 9 Objecte vor
-        //Ordne Objecte in Raster an
-        //Animation on hover
-        //onClick kopiere Obj und binde es an den cursor
     }; 
 
+    alignMenu( cam ){
+        cam.getWorldDirection( this.menuGroup.position );
+        this.menuGroup.position.normalize();
+        this.menuGroup.position.multiplyScalar( 5 );
+        this.menuGroup.position.addVectors( this.menuGroup.position, cam.position );
+
+        this.menuGroup.position.set( this.menuGroup.position.x, this.menuGroup.position.y, this.menuGroup.position.z );
+        this.menuGroup.lookAt( cam.position );
+
+        for(let i=0; i<this.menuGroup.children.length; i++){
+            this.menuGroup.children[i].children[0].lookAt( cam.position.x, cam.position.y, cam.position.z );
+            this.menuGroup.children[i].children[1].lookAt( cam.position.x, cam.position.y, cam.position.z );
+            //this.menuGroup.children[i].rotateY( (180 / Math.PI) * 0.001 );
+            //this.menuGroup.children[i].children[0].lookAt( cam.position );
+            //this.menuGroup.children[i].children[1].lookAt( cam.position );
+        };
+    };
+
+    getGridCard( obj ){
+        let currentObj = obj;
+        while( currentObj.parent ){
+            if( currentObj.name == 'gridCard' ){ return currentObj };
+            currentObj = currentObj.parent;
+        };
+        //return currentObj;
+    };    
+
+    // foo(){
+    //     this.menuGroup.addEventListener( 'mouseover', ( e ) => {
+
+    //         if( this.gui.menuVisible ){
+    //             this.gui.updateRaycasterTarget( this.env.camera, this.gui.menuGroup.children );
+    //             if( this.gui.firstHit ){
+    //                 let mg = this.getGridCard( this.gui.firstHit.object );
+    //                 mg.children[1].rotateY( (180 / Math.PI) * 0.1 );
+    //                 console.log( mg );
+    //             };
+    //         };
+        
+    //     });
+    // }
 
 };
 
