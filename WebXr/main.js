@@ -43,6 +43,9 @@ class Game{
             this.gui.createMenu( this.objHandler.menuObjects );
         });
 
+        //Game Clock
+        let clock = new THREE.Clock();
+
 
         //Starte XR mit Button
         const sessionInit = {
@@ -58,6 +61,7 @@ class Game{
     startLoop(){
         // setAnimationLoop() zwingend notwendig für XR Anwendungen
         this.renderer.setAnimationLoop( (timestamp, frame) => {
+            if( this.gui.menuVisible ){this.gui.alignMenu( this.env.camera )};
             this.env.animateShader( timestamp, this.renderer.domElement.width, this.renderer.domElement.height );
             this._drawFrame();
         });
@@ -91,8 +95,8 @@ class Game{
             break;
             case 'q':
                 this.gui.menuVisible = !this.gui.menuVisible;
-                if(this.gui.menuVisible) { this.env.scene.add( this.gui.menuGroup ) }
-                else { this.env.scene.remove( this.gui.menuGroup ) };
+                if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
+                else { this.env.raycasterGroup.remove( this.gui.menuGroup ) };
             break;
             default:
             break;
@@ -134,8 +138,6 @@ class Game{
         if( this.objHandler.buildModeActivated && this.objHandler.activeObjectIsPlaced ){
             this.objHandler.buildModeActivated = false;
             this.objHandler.activeObjectIsPlaced = false;
-            //menu.visible = false;
-            //this.env.raycasterGroup.remove( menu );
             this.env.scene.remove( this.gui.lineForRotation );
         };
 
@@ -148,9 +150,7 @@ class Game{
             this.env.scene.add( this.objHandler.testObj );
             this.objHandler.activeObjectIsPlaced = true;
         };  
-    };
-
-
+    };    
     
 };//Ende Game Klasse
 
@@ -178,60 +178,3 @@ window.addEventListener( 'click', ( e ) => {
 });
 
 
-
-/**************************************************************************************************************************
-                                           Events
-***************************************************************************************************************************/
-/*
-
-
-//Füller Promis Array
-for(let i=0; i<plants.length;i++){
-    plants[i] = form.loadOBJ(`../obj/${i}/${i}.mtl`,`../obj/${i}/${i}.obj`);
-    cards[i] = new THREE.Group();
-  };
-  
-  //Starte Render Loop erst nachdem alle Objekte eingeladen wurden
-  Promise.all(plants).then( values => {
-  
-    //Init
-    plants = values;
-    scene.add( controller );
-    raycasterGroup.add( form.plane );
-    raycasterGroup.add( form.box );
-    scene.add( raycasterGroup );
-  
-  
-    let w = 0.5;
-    let h = 0.75;
-    let offset = 0.25;
-    let counter = 0;
-  
-    for(let i=0; i<plants.length; i++){
-      let foo = new THREE.Mesh(
-        new THREE.PlaneGeometry(w,h,2,2),
-        new THREE.MeshPhongMaterial({
-          color: 0x00FFFF,
-          side: THREE.DoubleSide
-        })
-      );
-  
-      plants[i].scale.set( 0.01, 0.01, 0.01 );
-      plants[i].position.set( 0, -0.25, 0 );
-      cards[i].add(plants[i]);
-      foo.position.set( 0, 0, -0.3 );
-      cards[i].add( foo );
-  
-      if(i%3==0)counter++;
-      cards[i].position.set( (w+offset)*(i%3), (offset+h)*counter, 0 );
-  
-      menu.add( cards[i] );
-    }; // Ende For Schleife
-  
-  
-    console.log("Setup fertig starte Render Loop");
-    renderer.setAnimationLoop( animate );
-  });
-
-
-  */
