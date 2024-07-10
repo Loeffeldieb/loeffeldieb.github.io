@@ -94,39 +94,48 @@ class GUI{
         //Create Menu --> später  Add/remove from scene
         this.menuGroup = new THREE.Group();
 
-        //Bestimme Breite und Höhe des Rasters
+        //Bestimme Breite Rasters
         const w = 3;
-
-        //Counter für Positionierung in der Höhe
-        let counter = -1;
+        //Breite und Höhe eines Grid Elementes
+        const b = 1;
+        const h = 1;
+        //Grid Element Position
+        let xPos = 0;
+        let yPos =-1;
+        //Grid Element Abstand
+        let margin = 0.5;
+        //Offset für Menu
+        let offset = ( (w*b) + (w-1)*(margin) )*0.5  - (b*0.5);
 
         //Erstelle Raster
         for(let i=0; i<objectsArray.length; i++){
-            //Erstelle Gruppe für einzelnes Grid Element
-            let gridCard = new THREE.Group();
-            gridCard.name = 'gridCard';
-
-            if( i%w == 0 ){ counter++ };
-            let xPos = (i%w)*1.1 - 1;
-            let yPos = counter*1.1;
-
-            //Placeholder
+            
+            if( i%w == 0 ){ yPos++ };
+                xPos = (i%w)*(b+margin)-offset;
+                
+            //Grid Element Hintergrund
             let plate = new THREE.Mesh(
-                new THREE.BoxGeometry( 1, 1, 0.05 ),
+                new THREE.BoxGeometry( b, h, 0.05 ),
                 new THREE.MeshBasicMaterial({
                     color: 0xFFFFFF
                 })
             )
 
-            //Placeholder
-            plate.position.set( xPos, yPos, -1 );
+            //Platziere Grid Gruppe und addiere Elemente
+            let gridCard = new THREE.Group();
+            gridCard.name = 'gridCard';
+            gridCard.position.set( xPos,yPos*(margin+h),0 );
+
+            plate.position.set( 0,0,-1 );
             gridCard.add( plate );
 
-            objectsArray[i].position.set( xPos,yPos,0 );
             gridCard.add( objectsArray[i] );
 
+            //Füge Grid Element dem Menu hinzu
             this.menuGroup.add( gridCard );
         };
+
+
     }; 
 
     alignMenu( cam ){
@@ -137,14 +146,6 @@ class GUI{
 
         this.menuGroup.position.set( this.menuGroup.position.x, this.menuGroup.position.y, this.menuGroup.position.z );
         this.menuGroup.lookAt( cam.position );
-
-        for(let i=0; i<this.menuGroup.children.length; i++){
-            this.menuGroup.children[i].children[0].lookAt( cam.position.x, cam.position.y, cam.position.z );
-            this.menuGroup.children[i].children[1].lookAt( cam.position.x, cam.position.y, cam.position.z );
-            //this.menuGroup.children[i].rotateY( (180 / Math.PI) * 0.001 );
-            //this.menuGroup.children[i].children[0].lookAt( cam.position );
-            //this.menuGroup.children[i].children[1].lookAt( cam.position );
-        };
     };
 
     getGridCard( obj ){
@@ -153,7 +154,6 @@ class GUI{
             if( currentObj.name == 'gridCard' ){ return currentObj };
             currentObj = currentObj.parent;
         };
-        //return currentObj;
     };    
 
     // foo(){
