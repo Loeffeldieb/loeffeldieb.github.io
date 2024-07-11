@@ -32,6 +32,9 @@ class GUI{
         //Flag, ob das Menu angezeigt wird
         this.menuVisible = false;
 
+        //Aktioves Element aus dem Menu
+        this.activeElement = null; //THREE.Object
+
         this._createMarker();
     };
 
@@ -126,7 +129,7 @@ class GUI{
             gridCard.name = 'gridCard';
             gridCard.position.set( xPos,yPos*(margin+h),0 );
 
-            plate.position.set( 0,0,-1 );
+            plate.position.set( 0,0,-0.2 );
             gridCard.add( plate );
 
             gridCard.add( objectsArray[i] );
@@ -156,19 +159,16 @@ class GUI{
         };
     };    
 
-    // foo(){
-    //     this.menuGroup.addEventListener( 'mouseover', ( e ) => {
-
-    //         if( this.gui.menuVisible ){
-    //             this.gui.updateRaycasterTarget( this.env.camera, this.gui.menuGroup.children );
-    //             if( this.gui.firstHit ){
-    //                 let mg = this.getGridCard( this.gui.firstHit.object );
-    //                 mg.children[1].rotateY( (180 / Math.PI) * 0.1 );
-    //                 console.log( mg );
-    //             };
-    //         };
+    // animateGridCard(){
         
-    //     });
+    //     if( this.gui.menuVisible ){
+    //         this.gui.updateRaycasterTarget( this.env.camera, this.gui.menuGroup.children );
+    //         if( this.gui.firstHit ){
+    //             let mg = this.getGridCard( this.gui.firstHit.object );
+    //             mg.children[1].rotateY( (180 / Math.PI) * 0.1 );
+    //             console.log( mg );
+    //         };
+    //     };
     // }
 
 };
