@@ -112,13 +112,6 @@ class Enviroment{
             };
         };
 
-        let newT =  new Float32Array( this.positionArray );
-        //console.log( testPlane.geometry.attributes.position.array );
-
-        
-        // console.log( testPlane.geometry.attributes.position.array );
-        // console.log( testPlane.geometry.index.array);
-
         this.raycasterGroup.add( testPlane );
     };
 
