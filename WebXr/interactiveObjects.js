@@ -21,32 +21,9 @@ class interactiveObjects{
         this.GLTFLoader = new GLTFLoader();
         //Flag für die Bestätigung dass objekte geladen wurden
         this.menuObjectsLoaded = false;
-        //Einladen des TestObjektes
-        this._loadGLTF( "./gltf/bunny/scene.gltf" ).then( result => {
-            this.testObj = result.scene;
-            this.testObj.children[0].scale.set( 0.4,0.4,0.4 );
-            this.testObj.children[0].position.set( 0,0.35,0 );
-            this.testObj.children[0].children[0].children[0].children[0].children[0].castShadow = true;
-            this.testObj.children[0].children[0].children[0].children[0].children[0].material.color.set( 0xe56b84 );
-        });
+        //Aktives Objekt
+        this.activeObject = null;
     };
-
-    _createTestObject(){
-        const fooGeo = new THREE.BoxGeometry( 0.5, 2, 0.1 );
-        fooGeo.translate( 0.25,1,0 );
-        this.testObj = new THREE.Mesh(
-            fooGeo,
-            new THREE.MeshPhysicalMaterial({
-              color: 0xFF00FF,
-              roughness: 0.5,
-              metalness: 0.75,
-              clearcoat: 0.33,
-              clearcoatRoughness: 0.1,
-            })
-          );
-        this.testObj.castShadow = true;
-    };
-
 
     _loadGLTF( url ){
         return new Promise( resolve => {
@@ -72,7 +49,7 @@ class interactiveObjects{
                 const bbox = new THREE.Box3().setFromObject( result[i].scene );
                 let size = new THREE.Vector3();
                 bbox.getSize( size );
-                const scaleVec = new THREE.Vector3(1,1,1).divide( size );
+                const scaleVec = new THREE.Vector3(0.5,0.5,0.5).divide( size );
                 const scale = Math.min( scaleVec.x, Math.min( scaleVec.y, scaleVec.z ));
                 result[i].scene.scale.setScalar( scale );
 
@@ -82,7 +59,7 @@ class interactiveObjects{
                 //das hier ist scheiße
                 switch (i){
                     case 0:
-                        result[i].scene.children[0].children[0].children[0].children[0].position.set( 0,-0.71,0 );
+                        result[i].scene.children[0].position.set( 0,-0.71,0 );
                         break;
                     case 1:
                         result[i].scene.children[0].position.set( 0,-0.925,0 );
@@ -102,12 +79,21 @@ class interactiveObjects{
                         break;
                 };
                 this.menuObjects[i] = result[i].scene;
+                //Füge Flag für das Hovern hinzu
+                this.menuObjects[i].isHovered = false;
             };
 
             //Callback
             callback();
          });
+    };//Ende Preload Funktion
+
+    animateOnHover( obj, t ){
+        if( obj.isHovered ){
+            obj.rotateY( 180/Math.PI * 1 + t );
+        };
     };
+
 };
 
 export { interactiveObjects };
