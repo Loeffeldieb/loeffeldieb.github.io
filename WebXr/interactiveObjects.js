@@ -23,6 +23,8 @@ class interactiveObjects{
         this.menuObjectsLoaded = false;
         //Aktives Objekt
         this.activeObject = null;
+        //Array mit neu gesezten Objekten
+        this.placedObjects = [];
     };
 
     _loadGLTF( url ){
