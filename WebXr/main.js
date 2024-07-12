@@ -101,9 +101,12 @@ class Game{
             this.objHandler.activeObject = null;
             this.env.scene.remove( this.objHandler.activeObject );
             //Hier lösche ale neu hinzugefügten Elemente
-            // for(){
-
-            // };
+            for(let i=this.env.scene.children.length-1; i>=0; i--){
+                if( this.env.scene.children[i]['name'] == 'placedObject' ){
+                    this.env.scene.remove( this.env.scene.children[i] );
+                    this.objHandler.placedObjects.splice(i,1);
+                };
+            };
             this.env.scene.remove( this.gui.lineForRotation )
             console.log( "Delete" );
             break;
@@ -215,8 +218,10 @@ class Game{
         if( this.gui.firstHit && this.gui.activeElement && this.gui.activeElement.children[1].isHovered ){
             //Erstelle Kopie aus einem der Menu Objekte
             this.objHandler.activeObject = this.gui.activeElement.children[1].clone();
-            this.objHandler.activeObject.scale.setScalar(0.3);
-            this.objHandler.activeObject.children[0].position.set( 0,0.0,0 );
+            this.objHandler.activeObject.name = "placedObject";
+            this.objHandler.placedObjects.push( this.objHandler.activeObject );
+            this.objHandler.activeObject.scale.setScalar( 0.5 );
+            this.objHandler.activeObject.children[0].position.set( 0,0,0 );
             //Schließe Menu und setze relevante Flags zurück
             this.gui.menuVisible = false;
             this.env.raycasterGroup.remove( this.gui.menuGroup );
@@ -226,6 +231,7 @@ class Game{
             this.objHandler.buildModeActivated = true;
             this.env.scene.add( this.objHandler.activeObject );
         };
+
     };    
 
     
