@@ -81,7 +81,7 @@ class Enviroment{
         plane.receiveShadow = true;
 
         // Erstelle Test Box
-        const boxGeo = new THREE.BoxGeometry(1,1,1);
+        const boxGeo = new THREE.BoxGeometry(0.5,0.5,0.5);
         const box = new THREE.Mesh(
             boxGeo,
             new THREE.MeshPhysicalMaterial({
@@ -114,11 +114,11 @@ class Enviroment{
         this.scene.remove( obj );
     };
 
-    changeBoxColor( obj ){
+    changeBoxColor( ){
         if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
-            obj.material.color.set( new THREE.Color(0xFF0000) );
+            this.boxy.material.color.set( new THREE.Color(0xFF0000) );
         }else{
-            obj.material.color.set( new THREE.Color(0x0000ff) );
+            this.boxy.material.color.set( new THREE.Color(0x0000ff) );
         };  
     };
 
