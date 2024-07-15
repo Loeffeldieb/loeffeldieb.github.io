@@ -57,11 +57,28 @@ class Enviroment{
         };
         document.body.appendChild(XRButton.createButton( this.renderer, sessionInit ));      //<----------
 
+
+
+        this.ctx = document.createElement('canvas').getContext('2d');
+        this.ctx.canvas.width = 256;
+        this.ctx.canvas.height = 256;
+        this.ctx.fillStyle = '#FFF';
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.texture = new THREE.CanvasTexture(this.ctx.canvas);
+        
+
         //Controller Variablen für Controller und Hand
         this.controller = this.renderer.xr.getController( 0 );
         this.scene.add( this.controller );
         this.controller.addEventListener('connected', (e) => {
             this.controller.gamepad = e.data.gamepad;
+            console.log( this.controller.gamepad.buttons.length );
+
+            //Fill Canvas
+            this.ctx.fillStyle = '#000';
+            this.ctx.font = "20px sans";
+            this.ctx.fillText(this.controller.gamepad.buttons.length, 10, 15);
+            this.texture.needsUpdate = true;
         });
         
         //Eventlistener Für den Select Button am Controller
@@ -113,13 +130,13 @@ class Enviroment{
         this.scene.remove( obj );
     };
 
-    /*changeBoxColor( ){
-        if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
-            this.boxy.material.color.set( new THREE.Color(0xFF0000) );
-        }else{
-            this.boxy.material.color.set( new THREE.Color(0x0000ff) );
-        };  
-    };*/
+    // changeBoxColor( ){
+    //     if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
+    //         this.boxy.material.color.set( new THREE.Color(0xFF0000) );
+    //     }else{
+    //         this.boxy.material.color.set( new THREE.Color(0x0000ff) );
+    //     };  
+    // };
 
     _createTestPlane(){
         this.shader_mat = new THREE.ShaderMaterial({
@@ -133,7 +150,9 @@ class Enviroment{
 
         const testPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(3,3,3,3),
-            this.shader_mat,
+            new THREE.MeshBasicMaterial({
+                map: this.texture
+            })
         );
         testPlane.position.set( 0,1.5,-3 );
         testPlane.castShadow = true;
