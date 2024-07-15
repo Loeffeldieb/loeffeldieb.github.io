@@ -42,6 +42,11 @@ class Game{
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
                 this.env.boxy.material.color.set( new THREE.Color(0xFF0000) );
+                //Fill Canvas
+                this.env.ctx.fillStyle = '#000';
+                this.env.ctx.font = "20px sans";
+                this.env.ctx.fillText(""+this.controller.gamepad.buttons[0].pressed, 10, 15);
+                this.env.texture.needsUpdate = true;
             };
 
             //Menu Spezifische Funktionen
