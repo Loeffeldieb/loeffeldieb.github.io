@@ -114,13 +114,13 @@ class Enviroment{
         this.scene.remove( obj );
     };
 
-    changeBoxColor( ){
+    /*changeBoxColor( ){
         if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
             this.boxy.material.color.set( new THREE.Color(0xFF0000) );
         }else{
             this.boxy.material.color.set( new THREE.Color(0x0000ff) );
         };  
-    };
+    };*/
 
     _createTestPlane(){
         this.shader_mat = new THREE.ShaderMaterial({
