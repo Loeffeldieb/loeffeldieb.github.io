@@ -62,7 +62,6 @@ class Enviroment{
         this.scene.add( this.controller );
         this.controller.addEventListener('connected', (e) => {
             this.controller.gamepad = e.data.gamepad;
-            console.log( this.controller.gamepad );
         });
         
         //Eventlistener Für den Select Button am Controller
