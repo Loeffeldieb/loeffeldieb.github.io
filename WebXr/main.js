@@ -45,8 +45,8 @@ class Game{
                 //Fill Canvas
                 this.env.ctx.fillStyle = '#000';
                 this.env.ctx.font = "20px sans";
-                if(this.controller.gamepad.buttons[0]){
-                    this.env.ctx.fillText(""+this.controller.gamepad.buttons[0].pressed, 10, 15);
+                if(this.env.controller.gamepad.buttons[0]){
+                    this.env.ctx.fillText(""+this.env.controller.gamepad.buttons[0].pressed, 10, 15);
                 };
                 this.env.texture.needsUpdate = true;
             };
