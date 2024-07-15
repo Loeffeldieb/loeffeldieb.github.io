@@ -54,7 +54,7 @@ class interactiveObjects{
                 const scaleVec = new THREE.Vector3(0.5,0.5,0.5).divide( size );
                 const scale = Math.min( scaleVec.x, Math.min( scaleVec.y, scaleVec.z ));
                 result[i].scene.scale.setScalar( scale );
-
+                result[i].scene.scaleWert = scale;
 
                 //Fülle Position nachrichten weil unterschiedlicher Ursprung in den Modellen
                 //Objekte sollten vorher shcon ausgerichtet werden
