@@ -1,0 +1,8 @@
+Model Information:
+* title:	Bicycle Low-Poly Minimalistic
+* source:	https://sketchfab.com/3d-models/bicycle-low-poly-minimalistic-5c70d53e069a4112a58683ede7bc2be6
+* author:	Denys Almaral (https://sketchfab.com/denysalmaral)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

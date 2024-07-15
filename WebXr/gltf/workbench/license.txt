@@ -1,0 +1,8 @@
+Model Information:
+* title:	Wood workbench
+* source:	https://sketchfab.com/3d-models/wood-workbench-c1826b0c3d074cd99574b99a750de91d
+* author:	perfumez (https://sketchfab.com/perfumez)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
