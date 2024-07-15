@@ -124,14 +124,14 @@ class Enviroment{
     };
 
     changeBoxColor( ){
-        if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
+        //if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
             this.boxy.material.color.set( new THREE.Color(0xFF0000) );
             //Fill Canvas
             // this.ctx.fillStyle = '#000';
             // this.ctx.font = "20px sans";
             // this.ctx.fillText(this.controller.gamepad.buttons[0].pressed, 10, 15);
             // this.texture.needsUpdate = true;
-        };
+        //};
     };
 
     _createTestPlane(){
