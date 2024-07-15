@@ -41,7 +41,6 @@ class Game{
             //Hier onPointerMove wenn XR enabled
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
-                this.env.changeBoxColor( );
             };
 
             //Menu Spezifische Funktionen
