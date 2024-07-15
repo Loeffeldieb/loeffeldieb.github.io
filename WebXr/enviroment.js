@@ -64,6 +64,7 @@ class Enviroment{
             this.controller.gamepad = e.data.gamepad;
             console.log( this.controller.gamepad );
         });
+        
         //Eventlistener Für den Select Button am Controller
         this.controller.addEventListener( 'selectstart', this.onSelectStart );
 	    this.controller.addEventListener( 'selectend', this.onSelectEnd );
@@ -96,6 +97,7 @@ class Enviroment{
         box.rotateY( 180/Math.PI*45 );
         box.castShadow = true;
         box.receiveShadow = true;
+        box.name = 'boxy';
 
         this.raycasterGroup.add( box );
         this.raycasterGroup.add( plane );
@@ -108,6 +110,14 @@ class Enviroment{
 
     removeFromScene( obj ){
         this.scene.remove( obj );
+    };
+
+    changeBoxColor( obj ){
+        if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
+            obj.material.color.set( new THREE.Color(0xFF0000) );
+        }else{
+            obj.material.color.set( new THREE.Color(0x0000ff) );
+        };  
     };
 
     _createTestPlane(){
