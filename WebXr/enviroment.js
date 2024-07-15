@@ -99,7 +99,9 @@ class Enviroment{
         box.receiveShadow = true;
         box.name = 'boxy';
 
-        this.raycasterGroup.add( box );
+        this.boxy = box.clone();
+
+        this.raycasterGroup.add( this.boxy );
         this.raycasterGroup.add( plane );
         this.scene.add( this.raycasterGroup );
     };
