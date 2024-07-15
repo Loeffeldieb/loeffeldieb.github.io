@@ -3,9 +3,6 @@ import { Enviroment } from './enviroment.js';
 import { GUI } from './gui.js';
 import { interactiveObjects } from './interactiveObjects.js';
 
-//XR Spezifisch
-import { XRButton } from 'three/addons/webxr/XRButton.js';
-
 /**************************************************************************************************************************
                                             Klasse für die Haupt Game Logic
 ***************************************************************************************************************************/
@@ -17,23 +14,12 @@ class Game{
     };
 
     _init(){
-        //Config Renderer
-        this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );  //  <-----
-        this.renderer.setPixelRatio( window.devicePixelRatio );
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.renderer.xr.enabled = false;                                                    //  <-----
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 3.0;
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.body.appendChild( this.renderer.domElement );
-
         // Enviroment Klasse für Scene und Camera
         this.env = new Enviroment();
      
         // GUI Klasse für Interface Aktionen und Darstellung
         this.gui = new GUI();
-        this.gui.initOrbitControls( this.env.camera, this.renderer.domElement );
+        this.gui.initOrbitControls( this.env.camera, this.env.renderer.domElement );
 
         //Klasse für die Interactiven Elemente
         this.objHandler = new interactiveObjects();
@@ -46,21 +32,17 @@ class Game{
         //Game Clock
         let clock = new THREE.Clock();
 
-
-        //Starte XR mit Button
-        const sessionInit = {
-            optionalFeatures: [ 
-                'hand-tracking',
-                'hit-test'
-                ]
-        };
-        //document.body.appendChild(XRButton.createButton( this.renderer, sessionInit ));      // <-----
-
     }; // Ende _Init
     
     startLoop(){
         // setAnimationLoop() zwingend notwendig für XR Anwendungen
-        this.renderer.setAnimationLoop( (timestamp, frame) => {
+        this.env.renderer.setAnimationLoop( (timestamp, frame) => {
+
+            //Hier onPointerMove wenn XR enabled
+            if( this.env.renderer.xr.isPresenting ){
+                this.onPointerMove();
+            };
+
             //Menu Spezifische Funktionen
             if( this.gui.menuVisible ){
                 this.gui.alignMenu( this.env.camera );
@@ -72,20 +54,20 @@ class Game{
                 });
             };
 
-            this.env.animateShader( timestamp, this.renderer.domElement.width, this.renderer.domElement.height );
+            this.env.animateShader( timestamp, this.env.renderer.domElement.width, this.env.renderer.domElement.height );
             this._drawFrame();
         });
     };
 
     _drawFrame(){
-        this.renderer.render( this.env.scene, this.env.camera );
+        this.env.renderer.render( this.env.scene, this.env.camera );
     };
 
     //Funktion für das Resize Event
     onWindowResize(){
         this.env.camera.aspect = window.innerWidth / window.innerHeight;
         this.env.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.env.renderer.setSize( window.innerWidth, window.innerHeight );
     };
 
     //Funktion für KeyUp Event
@@ -130,10 +112,15 @@ class Game{
 
     //Funktion für Mausbewegung
     onPointerMove( event ){
-        this.gui.updatePointerPosition( event.clientX, event.clientY );
-        // Cast Ray through Mouse ( Origin, targetGroup )
-        this.gui.updateRaycasterTarget( this.env.camera, this.env.raycasterGroup.children );
-
+        //Raycasting von Maus oder Controller bei XR enabled
+        if( this.env.renderer.xr.isPresenting ){
+            this.gui.raycaster.setFromXRController( this.env.controller );
+            this.gui.firstHit = this.gui.raycaster.intersectObjects( this.env.raycasterGroup.children )[0];
+        }else{
+            this.gui.updatePointerPosition( event.clientX, event.clientY );
+            // Cast Ray through Mouse ( Origin, targetGroup )
+            this.gui.updateRaycasterTarget( this.env.camera, this.env.raycasterGroup.children );
+        };
 
         //Menu spezifisch
         if( this.gui.menuVisible ){
@@ -220,7 +207,8 @@ class Game{
             this.objHandler.activeObject = this.gui.activeElement.children[1].clone();
             this.objHandler.activeObject.name = "placedObject";
             this.objHandler.placedObjects.push( this.objHandler.activeObject );
-            this.objHandler.activeObject.scale.setScalar( 0.5 );
+            //Bearbeite Position und Skalierung
+            this.objHandler.activeObject.scale.setScalar( 1-this.gui.activeElement.children[1].scaleWert );
             this.objHandler.activeObject.children[0].position.set( 0,0,0 );
             //Schließe Menu und setze relevante Flags zurück
             this.gui.menuVisible = false;
