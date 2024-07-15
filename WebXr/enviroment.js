@@ -72,13 +72,6 @@ class Enviroment{
         this.scene.add( this.controller );
         this.controller.addEventListener('connected', (e) => {
             this.controller.gamepad = e.data.gamepad;
-            console.log( this.controller.gamepad.buttons.length );
-
-            //Fill Canvas
-            this.ctx.fillStyle = '#000';
-            this.ctx.font = "20px sans";
-            this.ctx.fillText(this.controller.gamepad.buttons.length, 10, 15);
-            this.texture.needsUpdate = true;
         });
         
         //Eventlistener Für den Select Button am Controller
@@ -130,13 +123,16 @@ class Enviroment{
         this.scene.remove( obj );
     };
 
-    // changeBoxColor( ){
-    //     if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
-    //         this.boxy.material.color.set( new THREE.Color(0xFF0000) );
-    //     }else{
-    //         this.boxy.material.color.set( new THREE.Color(0x0000ff) );
-    //     };  
-    // };
+    changeBoxColor( ){
+        if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
+            this.boxy.material.color.set( new THREE.Color(0xFF0000) );
+            //Fill Canvas
+            // this.ctx.fillStyle = '#000';
+            // this.ctx.font = "20px sans";
+            // this.ctx.fillText(this.controller.gamepad.buttons[0].pressed, 10, 15);
+            // this.texture.needsUpdate = true;
+        };
+    };
 
     _createTestPlane(){
         this.shader_mat = new THREE.ShaderMaterial({
