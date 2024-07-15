@@ -41,6 +41,7 @@ class Game{
             //Hier onPointerMove wenn XR enabled
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
+                this.env.changeBoxColor( this.env.scene.children[3].children[0] );
             };
 
             //Menu Spezifische Funktionen
@@ -125,7 +126,14 @@ class Game{
         //Menu spezifisch
         if( this.gui.menuVisible ){
             //Neuer Ray auf nur auf das Menu
-            this.gui.updateRaycasterTarget( this.env.camera, this.gui.menuGroup.children );
+            //Raycasting von Maus oder Controller bei XR enabled
+            if( this.env.renderer.xr.isPresenting ){
+                this.gui.raycaster.setFromXRController( this.env.controller );
+                this.gui.firstHit = this.gui.raycaster.intersectObjects( this.gui.menuGroup.children )[0];
+            }else{
+                this.gui.updateRaycasterTarget( this.env.camera, this.gui.menuGroup.children );
+            };
+
             //Hover Logic für das Menu
             if( this.gui.firstHit ){
                 if( this.gui.activeElement !== this.gui.getGridCard( this.gui.firstHit.object ) ){
