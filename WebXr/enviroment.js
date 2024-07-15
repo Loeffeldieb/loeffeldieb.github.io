@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { _vs, _fs } from './shaders.js';
-
+import { XRButton } from 'three/addons/webxr/XRButton.js';
 /**************************************************************************************************************************
                                             Klasse für die darstellung der Szene
 ***************************************************************************************************************************/
@@ -13,6 +13,17 @@ class Enviroment{
     };
 
     _init(){
+        //Config Renderer
+        this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );  //  <-----
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.xr.enabled = true;                                                    //  <-----
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 3.0;
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild( this.renderer.domElement );
+
         //Szene
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color( 0xffffff );
@@ -33,6 +44,29 @@ class Enviroment{
 
         //Gruppe die später speziell vom Raycaster abgetastet werden soll
         this.raycasterGroup = new THREE.Group();
+
+        //Flag die einen Mouseclick simulieren soll
+        this.isSelected = false;
+
+        //Starte XR mit Button
+        const sessionInit = {
+            optionalFeatures: [ 
+                'hand-tracking',
+                //'hit-test'
+                ]
+        };
+        document.body.appendChild(XRButton.createButton( this.renderer, sessionInit ));      //<----------
+
+        //Controller Variablen für Controller und Hand
+        this.controller = this.renderer.xr.getController( 0 );
+        this.scene.add( this.controller );
+        this.controller.addEventListener('connected', (e) => {
+            this.controller.gamepad = e.data.gamepad;
+            console.log( this.controller.gamepad );
+        });
+        //Eventlistener Für den Select Button am Controller
+        this.controller.addEventListener( 'selectstart', this.onSelectStart );
+	    this.controller.addEventListener( 'selectend', this.onSelectEnd );
     };
 
     _basicSetup(){
@@ -119,6 +153,14 @@ class Enviroment{
         const t = time * 0.001;
         this.shader_mat.uniforms.iResolution.value.set(w, h, 1);
         this.shader_mat.uniforms.iTime.value = t;
+    };
+
+    onSelectStart(){
+        this.isSelected = true;
+    };
+
+    onSelectEnd(){
+        this.isSelected = false;
     };
 
 };
