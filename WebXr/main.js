@@ -52,8 +52,10 @@ class Game{
                 this.env.texture.needsUpdate = true;
             };
 
-            if(navigator.getGamepads().length > 0){
-                this.env.ctx.fillText(`${navigator.getGamepads()[0]}`,10, 40);
+            let session = this.env.renderer.xr.getSession();
+            if(session.inputSources.length > 0){
+                this.env.ctx.fillText(`${session.inputSources[0].gamepad}`,10, 40);
+                this.env.texture.needsUpdate = true;
             };
 
 
