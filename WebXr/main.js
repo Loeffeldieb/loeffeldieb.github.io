@@ -50,7 +50,7 @@ class Game{
                 this.env.ctx.font = "14px sans";
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
                 
-                if( this.env.isConnected ){
+                if( this.env.isConnected == true ){
                     for(let i=0; i<this.env.controller.gamepad.buttons.length; i++){
                         this.env.ctx.fillText(`${i}: ${this.env.controller.gamepad.buttons[i].pressed},${this.env.controller.gamepad.buttons[i].touched},${this.env.controller.gamepad.buttons[i].value.toFixed(1)}`,10,40+20*i)
                     };
