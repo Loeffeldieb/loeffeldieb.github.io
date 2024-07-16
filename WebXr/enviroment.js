@@ -66,7 +66,7 @@ class Enviroment{
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.texture = new THREE.CanvasTexture(this.ctx.canvas);
         
-
+        
         //Controller Variablen für Controller und Hand
         this.controller = this.renderer.xr.getController( 0 );
         this.scene.add( this.controller );
@@ -76,10 +76,11 @@ class Enviroment{
             //Fill Canvas
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
-            if(this.controller.gamepad.buttons[0]){
-                this.ctx.fillText(""+this.controller.gamepad.buttons[0].pressed, 10, 15);
-            };
+            this.ctx.fillText(`${navigator.getGamepads().length}`, 10, 20);
             this.texture.needsUpdate = true;
+        });
+        this.controller.addEventListener('disconnected', (e) => {
+
         });
         
         //Eventlistener Für den Select Button am Controller
