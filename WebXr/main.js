@@ -51,8 +51,10 @@ class Game{
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
                 
                 if( this.env.controller.gamepad ){
-                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons}`,10,40);
-                    this.env.ctx.fillText(`${this.env.controller.gamepad.axis}`,10,60);
+                    this.env.ctx.fillText(`B-Length: ${this.env.controller.gamepad.buttons.length}`,10,40);
+                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[0].pressed}`,10,60);
+                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[0].touched}`,100,60);
+                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[0].value}`,200,60);
                 };
             
                 this.env.texture.needsUpdate = true;
