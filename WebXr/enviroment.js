@@ -71,28 +71,20 @@ class Enviroment{
         this.controller = this.renderer.xr.getController( 0 );
         this.scene.add( this.controller );
         this.controller.addEventListener('connected', (e) => {
-            this.controller.gamepad = e.data.gamepad;
+            //this.controller.gamepad = e.data.gamepad;
+            this.controller.gamepad = navigator.getGamepads()[0];
             
             //Fill Canvas
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
             this.ctx.fillText(`Gamepads?: ${navigator.getGamepads().length}`, 10, 20);
-            
+            this.ctx.fillText(`${this.controller.gamepad.buttons.length}`,10,40); 
+                      
             this.texture.needsUpdate = true;
         });
         this.controller.addEventListener('disconnected', (e) => {
 
         });
-
-	    this.ctx.fillText(`${this.controller.gamepad.buttons[0]}`,10,40);
-            let counter = 0;
-            for (let key in this.controller.gamepad.buttons[0]) {
-                if (this.controller.gamepad.buttons[0].hasOwnProperty(key)) {
-                    this.ctx.fillText(`${key}: ${this.controller.gamepad.buttons[0][key]}`, 10, 60+counter*20);
-                };
-                counter++;
-            };
-	    this.texture.needsUpdate = true;
         
         //Eventlistener Für den Select Button am Controller
         this.controller.addEventListener( 'selectstart', this.onSelectStart );
