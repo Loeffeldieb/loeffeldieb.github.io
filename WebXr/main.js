@@ -49,15 +49,14 @@ class Game{
                 this.env.ctx.fillStyle = '#000';
                 this.env.ctx.font = "14px sans";
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
+
+                let session = this.env.renderer.xr.getSession();
+                if(session.inputSources.length > 0){
+                    this.env.ctx.fillText(`${session.inputSources[0].gamepad.axes}`,10, 40);
+                };
+
                 this.env.texture.needsUpdate = true;
             };
-
-            let session = this.env.renderer.xr.getSession();
-            if(session.inputSources.length > 0){
-                this.env.ctx.fillText(`${session.inputSources[0].gamepad}`,10, 40);
-                this.env.texture.needsUpdate = true;
-            };
-
 
             //Menu Spezifische Funktionen
             if( this.gui.menuVisible ){
