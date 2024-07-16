@@ -49,14 +49,13 @@ class Game{
                 this.env.ctx.fillStyle = '#000';
                 this.env.ctx.font = "14px sans";
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
-                //${this.env.controller.gamepad.buttons[i].pressed}
-                
-                if( this.env.isConnected == true ){
-                    this.env.ctx.fillText(`Achsen?: ${this.env.controller.gamepad.axes[2].toFixed(1)} | ${this.env.controller.gamepad.axes[3].toFixed(1)}`,10,40);
-                };
-            
                 this.env.texture.needsUpdate = true;
             };
+
+            if(navigator.getGamepads().length > 0){
+                this.env.ctx.fillText(`${navigator.getGamepads()[0]}`,10, 40);
+            };
+
 
             //Menu Spezifische Funktionen
             if( this.gui.menuVisible ){
