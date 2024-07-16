@@ -38,20 +38,19 @@ class Game{
         // setAnimationLoop() zwingend notwendig für XR Anwendungen
         this.env.renderer.setAnimationLoop( (timestamp, frame) => {
 
-            //Beschreibe Canvas mit Debugging shit
-            //Fill Canvas
-            this.env.ctx.fillStyle = '#FFF';
-            this.env.ctx.fillRect(0, 0, this.env.ctx.canvas.width, this.env.ctx.canvas.height);
-            this.env.ctx.fillStyle = '#000';
-            this.env.ctx.font = "20px sans";
-            this.env.ctx.fillText(`Gamepads?: ${navigator.getGamepads().length}`, 10, 20);
-            this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,40);        
-            this.env.texture.needsUpdate = true;
-
-
             //Hier onPointerMove wenn XR enabled
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
+
+                //Beschreibe Canvas mit Debugging shit
+                //Fill Canvas
+                this.env.ctx.fillStyle = '#FFF';
+                this.env.ctx.fillRect(0, 0, this.env.ctx.canvas.width, this.env.ctx.canvas.height);
+                this.env.ctx.fillStyle = '#000';
+                this.env.ctx.font = "20px sans";
+                this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20); 
+                this.env.ctx.fillText(`Gamepads?: ${this.gui.firstHit.point.x},${this.gui.firstHit.point.y}`, 10, 40);       
+                this.env.texture.needsUpdate = true;
             };
 
             //Menu Spezifische Funktionen
