@@ -41,7 +41,6 @@ class Game{
             //Hier onPointerMove wenn XR enabled
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
-                this.env.boxy.material.color.set( new THREE.Color(0xFF0000) );
             };
 
             //Menu Spezifische Funktionen
