@@ -49,9 +49,14 @@ class Game{
                 this.env.ctx.fillStyle = '#000';
                 this.env.ctx.font = "20px sans";
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
-                if(this.gui.firstHit){ 
-                    this.env.ctx.fillText(`Gamepads?: ${this.gui.firstHit.point.x.toFixed(1)},${this.gui.firstHit.point.y.toFixed(1)}`, 10, 40); 
-                };      
+                
+                let c = 0;
+                Object.entries( this.env.controller.gamepad ).forEach(([key, value]) => {
+                    console.log(`${key}: ${value}`);
+                    this.env.ctx.fillText(`${key}: ${value}`,10,40+c*20);
+                    c++;
+                });
+
                 this.env.texture.needsUpdate = true;
             };
 
