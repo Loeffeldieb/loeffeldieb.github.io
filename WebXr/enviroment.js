@@ -72,8 +72,8 @@ class Enviroment{
         this.controller = this.renderer.xr.getController( 0 );
         this.scene.add( this.controller );
         this.controller.addEventListener('connected', (e) => {
-            //this.controller.gamepad = e.data.gamepad;
-           this.isConnected = true;
+            this.controller.gamepad = e.data.gamepad;
+            this.isConnected = true;
             
         
         });
