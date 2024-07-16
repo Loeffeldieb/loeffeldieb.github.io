@@ -71,19 +71,18 @@ class Enviroment{
         //Controller Variablen für Controller und Hand
         this.controller = this.renderer.xr.getController( 0 );
         this.scene.add( this.controller );
-        this.controller.addEventListener('connected', (e) => {
-            this.controller.gamepad = e.data.gamepad;
-            this.isConnected = true;
-            
+        // this.controller.addEventListener('connected', (e) => {
+        //     this.controller.gamepad = e.data.gamepad;
+        //     this.isConnected = true;
+           
+        // });
+        // this.controller.addEventListener('disconnected', (e) => {
+        //     this.isConnected = false;
+        // });
         
-        });
-        this.controller.addEventListener('disconnected', (e) => {
-            this.isConnected = false;
-        });
-        
-        //Eventlistener Für den Select Button am Controller
-        this.controller.addEventListener( 'selectstart', this.onSelectStart );
-	    this.controller.addEventListener( 'selectend', this.onSelectEnd );
+        // //Eventlistener Für den Select Button am Controller
+        // this.controller.addEventListener( 'selectstart', this.onSelectStart );
+	    // this.controller.addEventListener( 'selectend', this.onSelectEnd );
     };
 
     _basicSetup(){
