@@ -48,8 +48,10 @@ class Game{
                 this.env.ctx.fillRect(0, 0, this.env.ctx.canvas.width, this.env.ctx.canvas.height);
                 this.env.ctx.fillStyle = '#000';
                 this.env.ctx.font = "20px sans";
-                this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20); 
-                this.env.ctx.fillText(`Gamepads?: ${this.gui.firstHit.point.x},${this.gui.firstHit.point.y}`, 10, 40);       
+                this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
+                if(this.gui.firstHit){ 
+                    this.env.ctx.fillText(`Gamepads?: ${this.gui.firstHit.point.x.toFixed(1)},${this.gui.firstHit.point.y.toFixed(1)}`, 10, 40); 
+                };      
                 this.env.texture.needsUpdate = true;
             };
 
