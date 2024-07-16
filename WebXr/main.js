@@ -50,13 +50,11 @@ class Game{
                 this.env.ctx.font = "20px sans";
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
                 
-                let c = 0;
-                Object.entries( this.env.controller.gamepad ).forEach(([key, value]) => {
-                    console.log(`${key}: ${value}`);
-                    this.env.ctx.fillText(`${key}: ${value}`,10,40+c*20);
-                    c++;
-                });
-
+                if( this.env.controller.gamepad ){
+                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons}`,10,40);
+                    this.env.ctx.fillText(`${this.env.controller.gamepad.axis}`,10,60);
+                };
+            
                 this.env.texture.needsUpdate = true;
             };
 
