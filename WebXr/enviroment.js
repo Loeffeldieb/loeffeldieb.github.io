@@ -76,7 +76,7 @@ class Enviroment{
             //Fill Canvas
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
-            this.ctx.fillText(`${navigator.getGamepads().length}`, 10, 20);
+            this.ctx.fillText(`${navigator.getGamepads()[0]}`, 10, 20);
             this.texture.needsUpdate = true;
         });
         this.controller.addEventListener('disconnected', (e) => {
