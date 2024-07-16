@@ -101,7 +101,7 @@ class Enviroment{
         const box = new THREE.Mesh(
             boxGeo,
             new THREE.MeshPhysicalMaterial({
-                color: 0x37ad27,
+                color: new THREE.Color( Math.random(255), Math.random(255), Math.random(255) ),
                 roughness: 0.5,
                 metalness: 0.33,
                 clearcoat: 0.75,
