@@ -52,7 +52,7 @@ class Game{
                 //${this.env.controller.gamepad.buttons[i].pressed}
                 
                 if( this.env.isConnected == true ){
-                    this.env.ctx.fillText(`Achsen?: ${this.env.controller.gamepad.axes[2].tofixed(2)},${this.env.controller.gamepad.axes[3].tofixed(2)}`,10,40);
+                    this.env.ctx.fillText(`Achsen?: ${this.env.controller.gamepad.axes[2].toFixed(1)} | ${this.env.controller.gamepad.axes[2].toFixed(1)}`,10,40);
                 };
             
                 this.env.texture.needsUpdate = true;
