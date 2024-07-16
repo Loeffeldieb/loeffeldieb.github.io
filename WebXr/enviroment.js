@@ -47,6 +47,7 @@ class Enviroment{
 
         //Flag die einen Mouseclick simulieren soll
         this.isSelected = false;
+        this.isConnected = false;
 
         //Starte XR mit Button
         const sessionInit = {
@@ -72,18 +73,12 @@ class Enviroment{
         this.scene.add( this.controller );
         this.controller.addEventListener('connected', (e) => {
             //this.controller.gamepad = e.data.gamepad;
-            this.controller.gamepad = navigator.getGamepads()[0];
+           this.isConnected = true;
             
-            //Fill Canvas
-            this.ctx.fillStyle = '#000';
-            this.ctx.font = "20px sans";
-            this.ctx.fillText(`Gamepads?: ${navigator.getGamepads().length}`, 10, 20);
-            this.ctx.fillText(`${this.controller.gamepad.buttons.length}`,10,40); 
-                      
-            this.texture.needsUpdate = true;
+        
         });
         this.controller.addEventListener('disconnected', (e) => {
-
+            this.isConnected = false;
         });
         
         //Eventlistener Für den Select Button am Controller
