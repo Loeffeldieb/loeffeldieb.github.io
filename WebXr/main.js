@@ -52,9 +52,9 @@ class Game{
                 
                 if( this.env.controller.gamepad ){
                     this.env.ctx.fillText(`B-Length: ${this.env.controller.gamepad.buttons.length}`,10,40);
-                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[0].pressed}`,10,60);
-                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[0].touched}`,100,60);
-                    this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[0].value}`,200,60);
+                    for(let i=0; i<this.env.controller.gamepad.buttons.length; i++){
+                        this.env.ctx.fillText(`${this.env.controller.gamepad.buttons[i].pressed},${this.env.controller.gamepad.buttons[i].touched},${this.env.controller.gamepad.buttons[i].value}`,10,60+20*i)
+                    };
                 };
             
                 this.env.texture.needsUpdate = true;
