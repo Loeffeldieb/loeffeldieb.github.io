@@ -76,15 +76,15 @@ class Enviroment{
             //Fill Canvas
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
-            this.ctx.fillText(`Gamepads? ${navigator.getGamepads()}`, 10, 20);
-            this.ctx.fillText(`Buttons: ${this.controller.gamepad.buttons.length}`, 10, 40);
+            this.ctx.fillText(`Gamepads?: ${navigator.getGamepads().length}`, 10, 20);
+            //this.ctx.fillText(`Buttons: ${this.controller.gamepad.buttons.length}`, 10, 40);
             this.ctx.fillText(`${this.controller.gamepad}`,10,60);
             
-            // for(const [key,value] of Object.entries(this.controller.gamepad.buttons[0])){
-            //     this.ctx.font = "8px sans";
-            //     this.ctx.fillText(`${key}:${value}`,10+80*counter,20*i+60);
-            //     counter++;
-            // };
+            for(const [key,value] of Object.entries(this.controller.gamepad)){
+                this.ctx.font = "8px sans";
+                this.ctx.fillText(`${key}:${value}`,10+80*counter,20*i+60);
+                counter++;
+            };
             
 
             this.texture.needsUpdate = true;
