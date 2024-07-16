@@ -47,13 +47,13 @@ class Game{
                 this.env.ctx.fillStyle = '#FFF';
                 this.env.ctx.fillRect(0, 0, this.env.ctx.canvas.width, this.env.ctx.canvas.height);
                 this.env.ctx.fillStyle = '#000';
-                this.env.ctx.font = "12px sans";
+                this.env.ctx.font = "14px sans";
                 this.env.ctx.fillText(`Connected?: ${this.env.isConnected}`,10,20);
                 
                 if( this.env.controller.gamepad ){
                     this.env.ctx.fillText(`B-Length: ${this.env.controller.gamepad.buttons.length}`,10,40);
                     for(let i=0; i<this.env.controller.gamepad.buttons.length; i++){
-                        this.env.ctx.fillText(`i: ${this.env.controller.gamepad.buttons[i].pressed},${this.env.controller.gamepad.buttons[i].touched},${this.env.controller.gamepad.buttons[i].value.toFixed(1)}`,10,60+20*i)
+                        this.env.ctx.fillText(`${i}: ${this.env.controller.gamepad.buttons[i].pressed},${this.env.controller.gamepad.buttons[i].touched},${this.env.controller.gamepad.buttons[i].value.toFixed(1)}`,10,60+20*i)
                     };
                 };
             
