@@ -77,8 +77,14 @@ class Enviroment{
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
             this.ctx.fillText(`Gamepads?: ${navigator.getGamepads().length}`, 10, 20);
+            
+            this.texture.needsUpdate = true;
+        });
+        this.controller.addEventListener('disconnected', (e) => {
 
-            this.ctx.fillText(`${this.controller.gamepad.buttons[0]}`,10,40);
+        });
+
+	    this.ctx.fillText(`${this.controller.gamepad.buttons[0]}`,10,40);
             let counter = 0;
             for (let key in this.controller.gamepad.buttons[0]) {
                 if (this.controller.gamepad.buttons[0].hasOwnProperty(key)) {
@@ -86,12 +92,7 @@ class Enviroment{
                 };
                 counter++;
             };
-            
-            this.texture.needsUpdate = true;
-        });
-        this.controller.addEventListener('disconnected', (e) => {
-
-        });
+	    this.texture.needsUpdate = true;
         
         //Eventlistener Für den Select Button am Controller
         this.controller.addEventListener( 'selectstart', this.onSelectStart );
