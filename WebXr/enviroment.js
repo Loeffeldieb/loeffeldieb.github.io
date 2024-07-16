@@ -77,16 +77,16 @@ class Enviroment{
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
             this.ctx.fillText(`Gamepads?: ${navigator.getGamepads().length}`, 10, 20);
-            //this.ctx.fillText(`Buttons: ${this.controller.gamepad.buttons.length}`, 10, 40);
-            this.ctx.fillText(`${this.controller.gamepad}`,10,60);
-            
-            for(const [key,value] of Object.entries(this.controller.gamepad)){
-                this.ctx.font = "8px sans";
-                this.ctx.fillText(`${key}:${value}`,10+80*counter,20*i+60);
+
+            this.ctx.fillText(`${this.controller.gamepad.buttons[0]}`,10,40);
+            let counter = 0;
+            for (let key in this.controller.gamepad.buttons[0]) {
+                if (this.controller.gamepad.buttons[0].hasOwnProperty(key)) {
+                    this.ctx.fillText(`${key}: ${this.controller.gamepad.buttons[0][key]}`, 10, 60+counter*20);
+                };
                 counter++;
             };
             
-
             this.texture.needsUpdate = true;
         });
         this.controller.addEventListener('disconnected', (e) => {
