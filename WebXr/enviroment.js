@@ -76,7 +76,18 @@ class Enviroment{
             //Fill Canvas
             this.ctx.fillStyle = '#000';
             this.ctx.font = "20px sans";
-            this.ctx.fillText(`${navigator.getGamepads()[0]}`, 10, 20);
+            this.ctx.fillText(`Gamepads? ${navigator.getGamepads().length}`, 10, 20);
+            this.ctx.fillText(`Buttons: ${this.controller.gamepad.buttons.length}`, 10, 40);
+
+            for(let i=0; i<this.controller.gamepad.buttons.length; i++){
+                let counter = 0;
+                for(const [key,value] of Object.entries(this.controller.gamepad.buttons[i])){
+                    this.ctx.font = "8px sans";
+                    this.ctx.fillText(`${key}:${value}`,10+80*counter,20*i+60);
+                    counter++;
+                };
+            };
+
             this.texture.needsUpdate = true;
         });
         this.controller.addEventListener('disconnected', (e) => {
