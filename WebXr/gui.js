@@ -134,7 +134,7 @@ class GUI{
         const h = 0.3;
         //Grid Element Position
         let xPos = 0;
-        let yPos =-1;
+        let yPos =-2;
         //Grid Element Abstand
         let margin = 0.2;
         //Offset für Menu
@@ -160,13 +160,13 @@ class GUI{
             gridCard.position.set( xPos,yPos*(margin+h),0 );
 
             plate.position.set( 0,0,-0.2 );
-            plate.renderOrder = 998;
             gridCard.add( plate );
 
-            objectsArray[i].renderOrder = 999;
+            objectsArray[i].scale.setScalar( 0.3 );
             gridCard.add( objectsArray[i] );
 
             //Füge Grid Element dem Menu hinzu
+            this.menuGroup.renderOrder = 999;
             this.menuGroup.add( gridCard );
         };
 
