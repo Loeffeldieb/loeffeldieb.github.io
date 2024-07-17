@@ -80,9 +80,9 @@ class Enviroment{
         //     this.isConnected = false;
         // });
         
-        // //Eventlistener Für den Select Button am Controller
-        // this.controller.addEventListener( 'selectstart', this.onSelectStart );
-	    // this.controller.addEventListener( 'selectend', this.onSelectEnd );
+        //Eventlistener Für den Select Button am Controller
+        //this.controller.addEventListener( 'selectstart', this.onSelectStart );
+	    //this.controller.addEventListener( 'selectend', this.onSelectEnd );
     };
 
     _basicSetup(){
