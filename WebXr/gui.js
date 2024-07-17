@@ -136,7 +136,7 @@ class GUI{
         let xPos = 0;
         let yPos =-1;
         //Grid Element Abstand
-        let margin = 0.1;
+        let margin = 0.2;
         //Offset für Menu
         let offset = ( (w*b) + (w-1)*(margin) )*0.5  - (b*0.5);
 
@@ -160,11 +160,11 @@ class GUI{
             gridCard.position.set( xPos,yPos*(margin+h),0 );
 
             plate.position.set( 0,0,-0.2 );
+            plate.renderOrder = 998;
             gridCard.add( plate );
 
+            objectsArray[i].renderOrder = 999;
             gridCard.add( objectsArray[i] );
-
-            this.menuGroup.renderOrder = 9999;
 
             //Füge Grid Element dem Menu hinzu
             this.menuGroup.add( gridCard );
@@ -176,7 +176,7 @@ class GUI{
     alignMenu( cam ){
         cam.getWorldDirection( this.menuGroup.position );
         this.menuGroup.position.normalize();
-        this.menuGroup.position.multiplyScalar( 2 );
+        this.menuGroup.position.multiplyScalar( 1 );
         this.menuGroup.position.addVectors( this.menuGroup.position, cam.position );
 
         this.menuGroup.position.set( this.menuGroup.position.x, this.menuGroup.position.y, this.menuGroup.position.z );
