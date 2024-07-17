@@ -38,7 +38,6 @@ class Game{
     }; // Ende _Init
     
     startLoop(){
-        this.env.renderer.clearDepth();
         // setAnimationLoop() zwingend notwendig für XR Anwendungen
         this.env.renderer.setAnimationLoop( (timestamp, frame) => {
 
