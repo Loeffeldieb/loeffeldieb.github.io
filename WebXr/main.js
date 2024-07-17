@@ -62,6 +62,7 @@ class Game{
                     this.env.ctx.fillText(`Trigger: ${session.inputSources[0].gamepad.buttons[0].pressed}`,10, 40);
                     this.env.ctx.fillText(`A: ${session.inputSources[0].gamepad.buttons[4].pressed}`,10, 60);
                     this.env.ctx.fillText(`B: ${session.inputSources[0].gamepad.buttons[5].pressed}`,10, 80);
+                    this.env.ctx.fillText(`Menu on: ${this.gui.menuVisible}`,10, 100);
                 };
 
                 this.env.texture.needsUpdate = true;
@@ -154,7 +155,7 @@ class Game{
         };
     };
 
-    /*manageMenu(){
+    manageMenu(){
         if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
         else {
             if( this.gui.activeElement !== null){
@@ -165,7 +166,7 @@ class Game{
             this.objHandler.activeObject = null;
             this.env.raycasterGroup.remove( this.gui.menuGroup ) 
         };
-    };*/
+    };
 
     //Funktion für Mausbewegung
     onPointerMove( event ){
