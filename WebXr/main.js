@@ -32,6 +32,9 @@ class Game{
         //Game Clock
         let clock = new THREE.Clock();
 
+        //Esrtelle Controller Richtungs Linie
+        this.gui.createLineForXrController( this.env.controller );
+
     }; // Ende _Init
     
     startLoop(){
@@ -41,6 +44,10 @@ class Game{
             //Hier onPointerMove wenn XR enabled
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
+                this.gui.updateLineForController( );
+                this.manageControllerButtonEvents();
+                this.manageMenu();
+
 
                 //Beschreibe Canvas mit Debugging shit
                 //Fill Canvas
@@ -52,7 +59,9 @@ class Game{
 
                 let session = this.env.renderer.xr.getSession();
                 if(session.inputSources.length > 0){
-                    this.env.ctx.fillText(`${session.inputSources[0].gamepad.axes}`,10, 40);
+                    this.env.ctx.fillText(`Trigger: ${session.inputSources[0].gamepad.buttons[0].pressed}`,10, 40);
+                    this.env.ctx.fillText(`A: ${session.inputSources[0].gamepad.buttons[4].pressed}`,10, 60);
+                    this.env.ctx.fillText(`B: ${session.inputSources[0].gamepad.buttons[5].pressed}`,10, 80);
                 };
 
                 this.env.texture.needsUpdate = true;
@@ -125,12 +134,45 @@ class Game{
         };
     };
 
+    manageControllerButtonEvents(){
+        let session01 = this.env.renderer.xr.getSession();
+        if(session01.inputSources.length > 0){
+
+            //Open Menu A-Button
+            if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.menuVisible){
+               this.gui.menuVisible = true;
+            };
+
+            //Close Menu A-Button
+            if(session01.inputSources[0].gamepad.buttons[4].pressed == false && this.gui.menuVisible){
+                this.gui.menuVisible = false;
+            };
+
+            //session01.inputSources[0].gamepad.buttons[4].pressed
+
+            //session01.inputSources[0].gamepad.buttons[5].pressed
+        };
+    };
+
+    manageMenu(){
+        if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
+        else {
+            if( this.gui.activeElement !== null){
+                this.gui.activeElement.children[1].isHovered = false;
+                this.gui.activeElement = null;
+            };
+            this.gui.activeElement = null;
+            this.objHandler.activeObject = null;
+            this.env.raycasterGroup.remove( this.gui.menuGroup ) 
+        };
+    };
+
     //Funktion für Mausbewegung
     onPointerMove( event ){
         //Raycasting von Maus oder Controller bei XR enabled
         if( this.env.renderer.xr.isPresenting ){
             this.gui.raycaster.setFromXRController( this.env.controller );
-            this.gui.firstHit = this.gui.raycaster.intersectObjects( this.env.raycasterGroup.children )[0];
+            this.gui.firstHit = this.gui.raycaster.intersectObjects( this.env.raycasterGroup.children )[0]
         }else{
             this.gui.updatePointerPosition( event.clientX, event.clientY );
             // Cast Ray through Mouse ( Origin, targetGroup )
@@ -254,20 +296,22 @@ game.startLoop();
                                            Events
 ***************************************************************************************************************************/
 
+// Deaktiviert, da in VR nicht nötig
+
 addEventListener('resize', ( e ) => {
     game.onWindowResize();
 });
 
-window.addEventListener( 'keyup', ( e ) => {
-    game.manageKeyEvent( e );
-});
+// window.addEventListener( 'keyup', ( e ) => {
+//     game.manageKeyEvent( e );
+// });
 
-window.addEventListener( 'pointermove', ( e ) => {
-    game.onPointerMove( e );
-});
+// window.addEventListener( 'pointermove', ( e ) => {
+//     game.onPointerMove( e );
+// });
 
-window.addEventListener( 'click', ( e ) => {
-    game.onPointerClick( e );
-});
+// window.addEventListener( 'click', ( e ) => {
+//     game.onPointerClick( e );
+// });
 
 
