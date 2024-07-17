@@ -51,7 +51,7 @@ class interactiveObjects{
                 const bbox = new THREE.Box3().setFromObject( result[i].scene );
                 let size = new THREE.Vector3();
                 bbox.getSize( size );
-                const scaleVec = new THREE.Vector3(1,1,1).divide( size );
+                const scaleVec = new THREE.Vector3(0.2,0.2,0.2).divide( size );
                 const scale = Math.min( scaleVec.x, Math.min( scaleVec.y, scaleVec.z ));
                 result[i].scene.scale.setScalar( scale );
                 result[i].scene.scaleWert = scale;
