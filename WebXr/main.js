@@ -45,8 +45,8 @@ class Game{
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
                 this.gui.updateLineForController( );
-                this.manageControllerButtonEvents();
-                this.manageMenu();
+                //this.manageControllerButtonEvents();
+                //this.manageMenu();
 
 
                 //Beschreibe Canvas mit Debugging shit
@@ -134,7 +134,7 @@ class Game{
         };
     };
 
-    manageControllerButtonEvents(){
+    /*manageControllerButtonEvents(){
         let session01 = this.env.renderer.xr.getSession();
         if(session01.inputSources.length > 0){
 
@@ -165,7 +165,7 @@ class Game{
             this.objHandler.activeObject = null;
             this.env.raycasterGroup.remove( this.gui.menuGroup ) 
         };
-    };
+    };*/
 
     //Funktion für Mausbewegung
     onPointerMove( event ){
