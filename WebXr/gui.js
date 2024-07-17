@@ -63,6 +63,7 @@ class GUI{
             })
         );
         this.marker.castShadow = true;
+        this.marker.renderOrder = 3;
     };
 
     // Aktualisisere Maus Position (Normalisiert)
@@ -109,6 +110,7 @@ class GUI{
         });
         this.lineForController = new THREE.Line( lineGeometry, lineMaterial );
         this.lineForController.scale.z = .5;
+        this.lineForController.renderOrder = 3;
         ctrl.add( this.lineForController );
     };  
 
@@ -161,6 +163,8 @@ class GUI{
             gridCard.add( plate );
 
             gridCard.add( objectsArray[i] );
+
+            gridCard.renderOrder = 2;
 
             //Füge Grid Element dem Menu hinzu
             this.menuGroup.add( gridCard );
