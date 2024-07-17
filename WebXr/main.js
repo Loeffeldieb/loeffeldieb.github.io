@@ -78,60 +78,14 @@ class Game{
                 });
             };
 
-            this.env.animateShader( timestamp, this.env.renderer.domElement.width, this.env.renderer.domElement.height );
+            // Update Shader
+            //this.env.animateShader( timestamp, this.env.renderer.domElement.width, this.env.renderer.domElement.height );
             this._drawFrame();
         });
     };
 
     _drawFrame(){
         this.env.renderer.render( this.env.scene, this.env.camera );
-    };
-
-    //Funktion für das Resize Event
-    onWindowResize(){
-        this.env.camera.aspect = window.innerWidth / window.innerHeight;
-        this.env.camera.updateProjectionMatrix();
-        this.env.renderer.setSize( window.innerWidth, window.innerHeight );
-    };
-
-    //Funktion für KeyUp Event
-    manageKeyEvent( event ){
-        switch ( event.key ){
-            case 'b':
-            this.objHandler.buildModeActivated = !this.objHandler.buildModeActivated;
-            console.log(`Bau Modus ist ${this.objHandler.buildModeActivated?'an':'aus'}`);
-            break;
-            case 'r':
-            this.objHandler.buildModeActivated = false;
-            this.objHandler.activeObjectIsPlaced = false;
-            this.objHandler.activeObject = null;
-            this.env.scene.remove( this.objHandler.activeObject );
-            //Hier lösche ale neu hinzugefügten Elemente
-            for(let i=this.env.scene.children.length-1; i>=0; i--){
-                if( this.env.scene.children[i]['name'] == 'placedObject' ){
-                    this.env.scene.remove( this.env.scene.children[i] );
-                    this.objHandler.placedObjects.splice(i,1);
-                };
-            };
-            this.env.scene.remove( this.gui.lineForRotation )
-            console.log( "Delete" );
-            break;
-            case 'q':
-                this.gui.menuVisible = !this.gui.menuVisible;
-                if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
-                else {
-                    if( this.gui.activeElement !== null){
-                        this.gui.activeElement.children[1].isHovered = false;
-                        this.gui.activeElement = null;
-                    };
-                    this.gui.activeElement = null;
-                    this.objHandler.activeObject = null;
-                    this.env.raycasterGroup.remove( this.gui.menuGroup ) 
-                };
-            break;
-            default:
-            break;
-        };
     };
 
     manageControllerButtonEvents(){
@@ -171,7 +125,29 @@ class Game{
                 this.gui.a_Button_ON = false;
             };
 
-            //session01.inputSources[0].gamepad.buttons[5].pressed
+            // Click B-Button Start
+            if(session01.inputSources[0].gamepad.buttons[5].pressed && !this.gui.b_Button_ON){
+                this.gui.b_Button_ON = true;
+                //Remove Stuff from Scene
+                this.objHandler.buildModeActivated = false;
+                this.objHandler.activeObjectIsPlaced = false;
+                this.objHandler.activeObject = null;
+                this.env.scene.remove( this.objHandler.activeObject );
+                //Hier lösche ale neu hinzugefügten Elemente
+                for(let i=this.env.scene.children.length-1; i>=0; i--){
+                    if( this.env.scene.children[i]['name'] == 'placedObject' ){
+                        this.env.scene.remove( this.env.scene.children[i] );
+                        this.objHandler.placedObjects.splice(i,1);
+                    };
+                };
+                this.env.scene.remove( this.gui.lineForRotation )
+            };
+
+            // Click B-Butotn End
+            if(!session01.inputSources[0].gamepad.buttons[5].pressed && this.gui.b_Button_ON){
+                this.gui.b_Button_ON = false;
+            };
+
         };
     };
 
@@ -294,6 +270,13 @@ class Game{
 
     };    
 
+    //Funktion für das Resize Event
+    onWindowResize(){
+        this.env.camera.aspect = window.innerWidth / window.innerHeight;
+        this.env.camera.updateProjectionMatrix();
+        this.env.renderer.setSize( window.innerWidth, window.innerHeight );
+    };
+
     
 };//Ende Game Klasse
 
@@ -309,17 +292,3 @@ game.startLoop();
 addEventListener('resize', ( e ) => {
     game.onWindowResize();
 });
-
-// window.addEventListener( 'keyup', ( e ) => {
-//     game.manageKeyEvent( e );
-// });
-
-// window.addEventListener( 'pointermove', ( e ) => {
-//     game.onPointerMove( e );
-// });
-
-// window.addEventListener( 'click', ( e ) => {
-//     game.onPointerClick( e );
-// });
-
-
