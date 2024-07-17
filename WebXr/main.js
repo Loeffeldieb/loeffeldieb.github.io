@@ -46,7 +46,6 @@ class Game{
                 this.onPointerMove();
                 this.gui.updateLineForController( );
                 this.manageControllerButtonEvents();
-                //this.manageMenu();
 
 
                 //Beschreibe Canvas mit Debugging shit
@@ -142,29 +141,24 @@ class Game{
             //Open Menu A-Button
             if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.menuVisible){
                this.gui.menuVisible = true;
+               this.env.raycasterGroup.add( this.gui.menuGroup );
             };
 
             //Close Menu A-Button
-            if(session01.inputSources[0].gamepad.buttons[4].pressed == false && this.gui.menuVisible){
+            if(!session01.inputSources[0].gamepad.buttons[4].pressed && this.gui.menuVisible){
                 this.gui.menuVisible = false;
+                if( this.gui.activeElement !== null){
+                    this.gui.activeElement.children[1].isHovered = false;
+                    this.gui.activeElement = null;
+                };
+                this.gui.activeElement = null;
+                this.objHandler.activeObject = null;
+                this.env.raycasterGroup.remove( this.gui.menuGroup )
             };
 
             //session01.inputSources[0].gamepad.buttons[4].pressed
 
             //session01.inputSources[0].gamepad.buttons[5].pressed
-        };
-    };
-
-    manageMenu(){
-        if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
-        else {
-            if( this.gui.activeElement !== null){
-                this.gui.activeElement.children[1].isHovered = false;
-                this.gui.activeElement = null;
-            };
-            this.gui.activeElement = null;
-            this.objHandler.activeObject = null;
-            this.env.raycasterGroup.remove( this.gui.menuGroup ) 
         };
     };
 
