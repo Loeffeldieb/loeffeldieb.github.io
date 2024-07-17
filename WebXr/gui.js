@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { _line_fs, _line_vs } from './shaders.js';
 
 /**************************************************************************************************************************
                                             Klasse für Interface Aktionen
@@ -19,7 +20,7 @@ class GUI{
         this.normalWorldSpace = new THREE.Vector3();
         this.temporaryPlane = new THREE.Plane(); // Unendlichkeits Ebene für den Raycaster nach PLatzierung
 
-        // Maus Coordinates
+        // Maus Koordinaten
         this.pointer = new THREE.Vector3(0,0,0);
 
         // Quaternion für die Drehung des Markers
@@ -28,11 +29,13 @@ class GUI{
 
         // Hilfslinie vom Objekt zum Marker
         this.lineForRotation = new THREE.Line();
+        // Richtungs Linie für den Controller in XR
+        this.lineForController = new THREE.Line();
 
-        //Flag, ob das Menu angezeigt wird
+        // Flag, ob das Menu angezeigt wird
         this.menuVisible = false;
 
-        //Aktioves Element aus dem Menu
+        // Aktioves Element aus dem Menu
         this.activeElement = null; //THREE.Object
 
         this._createMarker();
@@ -92,6 +95,34 @@ class GUI{
         this.lineForRotation = new THREE.Line(new THREE.BufferGeometry().setFromPoints([ origin, target ]));
     };
 
+    //Esrtelle Linie, die vom XR controller aus zeigt
+    createLineForXrController( ctrl ){
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1) ]);
+        // const lineMaterial = new THREE.LineBasicMaterial({
+        //     color: 0xD4D4D4
+        // });
+        const lineMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(0x00FFEE) },
+                origin: { value: new THREE.Vector3(0,0,0) }
+            },
+            vertexShader: _line_vs,
+            fragmentShader: _line_fs,
+            transparent: true
+        });
+        this.lineForController = new THREE.Line( lineGeometry, lineMaterial );
+        this.lineForController.scale.z = .5;
+        ctrl.add( this.lineForController );
+    };  
+
+    updateLineForController(  ){
+        if(this.firstHit !== undefined){
+            this.lineForController.scale.z = this.firstHit.distance;
+            //this.lineForController.material.uniforms.origin.value.copy(  );
+        }else{
+            this.lineForController.scale.z = .5;
+        };
+    };
 
     createMenu( objectsArray ){
         //Create Menu --> später  Add/remove from scene
@@ -159,17 +190,7 @@ class GUI{
         };
     };    
 
-    // animateGridCard(){
-        
-    //     if( this.gui.menuVisible ){
-    //         this.gui.updateRaycasterTarget( this.env.camera, this.gui.menuGroup.children );
-    //         if( this.gui.firstHit ){
-    //             let mg = this.getGridCard( this.gui.firstHit.object );
-    //             mg.children[1].rotateY( (180 / Math.PI) * 0.1 );
-    //             console.log( mg );
-    //         };
-    //     };
-    // }
+    
 
 };
 
