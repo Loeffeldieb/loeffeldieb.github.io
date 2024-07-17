@@ -136,7 +136,7 @@ class GUI{
         let xPos = 0;
         let yPos =-2;
         //Grid Element Abstand
-        let margin = 0.2;
+        let margin = 0.1;
         //Offset für Menu
         let offset = ( (w*b) + (w-1)*(margin) )*0.5  - (b*0.5);
 
@@ -162,7 +162,6 @@ class GUI{
             plate.position.set( 0,0,-0.2 );
             gridCard.add( plate );
 
-            objectsArray[i].scale.setScalar( 0.3 );
             gridCard.add( objectsArray[i] );
 
             //Füge Grid Element dem Menu hinzu
