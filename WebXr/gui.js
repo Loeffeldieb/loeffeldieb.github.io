@@ -150,7 +150,8 @@ class GUI{
             let plate = new THREE.Mesh(
                 new THREE.BoxGeometry( b, h, 0.05 ),
                 new THREE.MeshBasicMaterial({
-                    color: 0xFFFFFF
+                    color: 0xFFFFFF,
+                    depthWrite: false
                 })
             )
 
