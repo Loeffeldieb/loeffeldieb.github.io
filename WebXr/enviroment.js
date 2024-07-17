@@ -9,7 +9,9 @@ class Enviroment{
     constructor(){
         this._init();
         this._basicSetup();
-        this._createTestPlane();
+        
+        // Plane Canvas zum Debuggen 
+        //this._createTestPlane();
     };
 
     _init(){
@@ -61,7 +63,7 @@ class Enviroment{
         document.body.appendChild(XRButton.createButton( this.renderer, sessionInit ));      //<----------
 
 
-
+        //Canvas zum Debuggen
         this.ctx = document.createElement('canvas').getContext('2d');
         this.ctx.canvas.width = 256;
         this.ctx.canvas.height = 256;
@@ -73,6 +75,7 @@ class Enviroment{
         //Controller Variablen für Controller und Hand
         this.controller = this.renderer.xr.getController( 0 );
         this.scene.add( this.controller );
+
         // this.controller.addEventListener('connected', (e) => {
         //     this.controller.gamepad = e.data.gamepad;
         //     this.isConnected = true;
@@ -89,11 +92,11 @@ class Enviroment{
 
     _basicSetup(){
         // Erstelle Test Plane
-        const planeGeo = new THREE.PlaneGeometry(10,10,10,10);
+        const planeGeo = new THREE.PlaneGeometry(100,100,10,10);
         planeGeo.rotateX(-Math.PI / 2);
         const plane = new THREE.Mesh(
             planeGeo,
-            new THREE.MeshPhongMaterial({color: 0xDDDD33})
+            new THREE.MeshPhongMaterial({color: 0xDDDD33, colorWrite: false})
         );
         plane.receiveShadow = true;
 
