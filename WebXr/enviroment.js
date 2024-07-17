@@ -129,17 +129,6 @@ class Enviroment{
         this.scene.remove( obj );
     };
 
-    // changeBoxColor( ){
-    //     //if (this.controller.gamepad.buttons[0].value > 0 || this.controller.gamepad.buttons[0].pressed) {
-    //         this.boxy.material.color.set( new THREE.Color(0xFF0000) );
-    //         //Fill Canvas
-    //         // this.ctx.fillStyle = '#000';
-    //         // this.ctx.font = "20px sans";
-    //         // this.ctx.fillText(this.controller.gamepad.buttons[0].pressed, 10, 15);
-    //         // this.texture.needsUpdate = true;
-    //     //};
-    // };
-
     _createTestPlane(){
         this.shader_mat = new THREE.ShaderMaterial({
             uniforms: {
@@ -159,24 +148,6 @@ class Enviroment{
         testPlane.position.set( 0,1.5,-3 );
         testPlane.castShadow = true;
         testPlane.receiveShadow = true;
-        
-        
-        this.indexArray = testPlane.geometry.index.array;
-        this.positionArray = Array.from( testPlane.geometry.attributes.position.array );
-
-        for(let i=0; i<this.indexArray.length; i+=3){
-            if(i==24){
-                this.a = this.indexArray[i];
-                this.b = this.indexArray[i+1];
-                this.c = this.indexArray[i+2];
-            }
-        };
-
-        for( let i=this.positionArray.length; i>=0; i-- ){
-            if( i==this.a || i==this.b || i==this.c ){
-                this.positionArray.splice(i,1);
-            };
-        };
 
         this.raycasterGroup.add( testPlane );
     };
