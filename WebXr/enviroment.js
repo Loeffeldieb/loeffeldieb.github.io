@@ -45,8 +45,10 @@ class Enviroment{
         //Gruppe die später speziell vom Raycaster abgetastet werden soll
         this.raycasterGroup = new THREE.Group();
 
-        //Flag die einen Mouseclick simulieren soll
+        //Flags für den Controller
         this.isSelected = false;
+        this.a_Button_ON = false;
+        this.b_Button_ON = false;
         this.isConnected = false;
 
         //Starte XR mit Button
