@@ -96,7 +96,35 @@ void main() {
 
 `;
 
+const _line_vs =
+`
+varying vec3 vPos;
+
+void main() 
+{
+    vPos = position;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+const _line_fs =
+`
+uniform vec3 origin;
+uniform vec3 color;
+varying vec3 vPos;
+float limitDistance = 0.5;
+
+void main() {
+    float distance = clamp(length(vPos - origin), 0., limitDistance);
+    float opacity = 1. - distance / limitDistance;
+    gl_FragColor = vec4(color, opacity);
+}
+
+`;
+
 export {
     _vs, 
-    _fs
+    _fs, 
+    _line_vs,
+    _line_fs
 };
