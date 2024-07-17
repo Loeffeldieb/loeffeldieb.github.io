@@ -45,7 +45,7 @@ class Game{
             if( this.env.renderer.xr.isPresenting ){
                 this.onPointerMove();
                 this.gui.updateLineForController( );
-                //this.manageControllerButtonEvents();
+                this.manageControllerButtonEvents();
                 //this.manageMenu();
 
 
@@ -134,7 +134,7 @@ class Game{
         };
     };
 
-    /*manageControllerButtonEvents(){
+    manageControllerButtonEvents(){
         let session01 = this.env.renderer.xr.getSession();
         if(session01.inputSources.length > 0){
 
@@ -154,7 +154,7 @@ class Game{
         };
     };
 
-    manageMenu(){
+    /*manageMenu(){
         if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
         else {
             if( this.gui.activeElement !== null){
