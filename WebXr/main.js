@@ -138,6 +138,18 @@ class Game{
         let session01 = this.env.renderer.xr.getSession();
         if(session01.inputSources.length > 0){
 
+            //Select Click Start
+            if(session01.inputSources[0].gamepad.buttons[0].pressed && !this.env.isSelected){
+                this.env.isSelected = true;
+                this.onPointerClick();
+            };
+
+            //Select Click End
+            if(!session01.inputSources[0].gamepad.buttons[0].pressed && this.env.isSelected){
+                this.env.isSelected = false;
+            };
+
+
             //Open Menu A-Button
             if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.menuVisible){
                this.gui.menuVisible = true;
@@ -155,8 +167,6 @@ class Game{
                 this.objHandler.activeObject = null;
                 this.env.raycasterGroup.remove( this.gui.menuGroup )
             };
-
-            //session01.inputSources[0].gamepad.buttons[4].pressed
 
             //session01.inputSources[0].gamepad.buttons[5].pressed
         };
@@ -240,7 +250,7 @@ class Game{
     };
 
     //Funktion für das Click Event der Mouse
-    onPointerClick( event ){
+    onPointerClick(){
 
         //Reset State to blank after objact is placed and rotated
         if( this.objHandler.buildModeActivated && this.objHandler.activeObjectIsPlaced ){
