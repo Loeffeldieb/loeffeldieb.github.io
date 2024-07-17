@@ -164,7 +164,7 @@ class GUI{
 
             gridCard.add( objectsArray[i] );
 
-            this.menuGroup.renderOrder = 2;
+            this.menuGroup.renderOrder = 9999;
 
             //Füge Grid Element dem Menu hinzu
             this.menuGroup.add( gridCard );
