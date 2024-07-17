@@ -138,34 +138,37 @@ class Game{
         let session01 = this.env.renderer.xr.getSession();
         if(session01.inputSources.length > 0){
 
-            //Select Click Start
+            // Select Click Start
             if(session01.inputSources[0].gamepad.buttons[0].pressed && !this.env.isSelected){
                 this.env.isSelected = true;
                 this.onPointerClick();
             };
 
-            //Select Click End
+            // Select Click End
             if(!session01.inputSources[0].gamepad.buttons[0].pressed && this.env.isSelected){
                 this.env.isSelected = false;
             };
 
-
-            //Open Menu A-Button
-            if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.menuVisible){
-               this.gui.menuVisible = true;
-               this.env.raycasterGroup.add( this.gui.menuGroup );
+            // Click  A-Button Start
+            if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.a_Button_ON ){
+                this.gui.a_Button_ON = true;
+                this.gui.menuVisible = !this.gui.menuVisible;
+                // Toggle Menu
+                if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
+                else {
+                    if( this.gui.activeElement !== null){
+                        this.gui.activeElement.children[1].isHovered = false;
+                        this.gui.activeElement = null;
+                    };
+                    this.gui.activeElement = null;
+                    this.objHandler.activeObject = null;
+                    this.env.raycasterGroup.remove( this.gui.menuGroup ) 
+                };
             };
 
-            //Close Menu A-Button
-            if(!session01.inputSources[0].gamepad.buttons[4].pressed && this.gui.menuVisible){
-                this.gui.menuVisible = false;
-                if( this.gui.activeElement !== null){
-                    this.gui.activeElement.children[1].isHovered = false;
-                    this.gui.activeElement = null;
-                };
-                this.gui.activeElement = null;
-                this.objHandler.activeObject = null;
-                this.env.raycasterGroup.remove( this.gui.menuGroup )
+            //Click Menu A-Button End
+            if(!session01.inputSources[0].gamepad.buttons[4].pressed && this.gui.a_Button_ON){
+                this.gui.a_Button_ON = false;
             };
 
             //session01.inputSources[0].gamepad.buttons[5].pressed
