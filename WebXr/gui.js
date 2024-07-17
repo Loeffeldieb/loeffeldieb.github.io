@@ -98,9 +98,6 @@ class GUI{
     //Esrtelle Linie, die vom XR controller aus zeigt
     createLineForXrController( ctrl ){
         const lineGeometry = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1) ]);
-        // const lineMaterial = new THREE.LineBasicMaterial({
-        //     color: 0xD4D4D4
-        // });
         const lineMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: new THREE.Color(0x00FFEE) },
