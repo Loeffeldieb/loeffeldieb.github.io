@@ -102,16 +102,22 @@ class Enviroment{
 
         // Erstelle Test Box
         const boxGeo = new THREE.BoxGeometry(0.5,0.5,0.5);
+       
+        this.shader_mat = new THREE.ShaderMaterial({
+            uniforms: {
+                iTime: {value: 0},
+                iResolution: {value: new THREE.Vector3()}
+            },
+            vertexShader: _vs,
+            fragmentShader: _fs,
+        });
+
         const box = new THREE.Mesh(
             boxGeo,
-            new THREE.MeshPhysicalMaterial({
-                color: new THREE.Color( Math.random(255), Math.random(255), Math.random(255) ),
-                roughness: 0.5,
-                metalness: 0.33,
-                clearcoat: 0.75,
-                clearcoatRoughness: 0.2,
-            })
+            this.shader_mat
         );
+
+
         box.translateY( 1.6 );
         box.rotateX( 180/Math.PI*45 );
         box.rotateY( 180/Math.PI*45 );
