@@ -141,15 +141,6 @@ class Enviroment{
     };
 
     _createTestPlane(){
-        this.shader_mat = new THREE.ShaderMaterial({
-            uniforms: {
-                iTime: {value: 0},
-                iResolution: {value: new THREE.Vector3()}
-            },
-            vertexShader: _vs,
-            fragmentShader: _fs,
-        });
-
         const testPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(3,3,3,3),
             new THREE.MeshBasicMaterial({
