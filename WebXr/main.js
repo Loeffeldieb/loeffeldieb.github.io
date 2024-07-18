@@ -61,7 +61,7 @@ class Game{
                     this.env.ctx.fillText(`Trigger: ${session.inputSources[0].gamepad.buttons[0].pressed}`,10, 40);
                     this.env.ctx.fillText(`Scene: ${this.env.scene.children.length}`,10, 60);
                     this.env.ctx.fillText(`Raycaster: ${this.env.raycasterGroup.children.length}`,10, 80);
-                    this.env.ctx.fillText(`objHandler: ${this.objHandler.placedObjects.length}`,10, 100);
+                    //this.env.ctx.fillText(`objHandler: ${this.objHandler.placedObjects.length}`,10, 100);
                 };
 
                 this.env.texture.needsUpdate = true;
@@ -258,7 +258,7 @@ class Game{
             //Erstelle Kopie aus einem der Menu Objekte
             this.objHandler.activeObject = this.gui.activeElement.children[1].clone();
             this.objHandler.activeObject.name = "placedObject";
-            this.objHandler.placedObjects.push( this.objHandler.activeObject );
+            //this.objHandler.placedObjects.push( this.objHandler.activeObject );
             //Bearbeite Position und Skalierung
             //this.objHandler.activeObject.scale.setScalar( 1-this.gui.activeElement.children[1].scaleWert );
             this.objHandler.activeObject.scale.setScalar( 0.3 );
