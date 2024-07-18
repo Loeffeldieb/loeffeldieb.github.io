@@ -11,7 +11,7 @@ class Enviroment{
         this._basicSetup();
         
         // Plane Canvas zum Debuggen 
-        //this._createTestPlane();
+        this._createTestPlane();
     };
 
     _init(){
