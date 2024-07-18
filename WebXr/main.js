@@ -134,9 +134,9 @@ class Game{
                 this.objHandler.activeObject = null;
                 this.env.scene.remove( this.objHandler.activeObject );
                 //Hier lösche ale neu hinzugefügten Elemente
-                for(let i=this.env.scene.children.length-1; i>=0; i--){
-                    if( this.env.scene.children[i]['name'] == 'placedObject' ){
-                        this.env.scene.remove( this.env.scene.children[i] );
+                for(let i=this.env.raaycaster.children.length-1; i>=0; i--){
+                    if( this.env.raycaster.children[i]['name'] == 'placedObject' ){
+                        //this.env.scene.remove( this.env.scene.children[i] );
                         this.env.raycasterGroup.remove( this.env.raycaster.children[i] );               //<----- Hier Testen
                         this.objHandler.placedObjects.splice(i,1);
                     };
