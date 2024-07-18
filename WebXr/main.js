@@ -134,10 +134,10 @@ class Game{
                 this.objHandler.activeObject = null;
                 this.env.scene.remove( this.objHandler.activeObject );
                 //Hier lösche ale neu hinzugefügten Elemente
-                for(let i=this.env.raycasterGroup.children.length-1; i>=0; i--){
-                    if( this.env.raycasterGroup.children[i]['name'] == 'placedObject' ){
-                        //this.env.scene.remove( this.env.scene.children[i] );
-                        this.env.raycasterGroup.remove( this.env.scene.children[i] );               //<----- Hier Testen
+                for(let i=this.env.scene.children.length-1; i>=0; i--){
+                    if( this.env.scene.children[i]['name'] == 'placedObject' ){
+                        this.env.scene.remove( this.env.scene.children[i] );
+                        //this.env.raycasterGroup.remove( this.env.scene.children[i] );               //<----- Hier Testen
                         this.objHandler.placedObjects.splice(i,1);
                     };
                 };
@@ -246,8 +246,8 @@ class Game{
             //Erweitere Hit Normal in die Unendlichkeit zum abtasten
             this.gui.temporaryPlane.setFromNormalAndCoplanarPoint( this.gui.normalWorldSpace, this.gui.firstHit.point);
 
-            this.env.scene.remove( this.objHandler.activeObject );
-            this.env.raycasterGroup.add( this.objHandler.activeObject );              //<------- Hier Testen
+            //this.env.scene.remove( this.objHandler.activeObject );
+            //this.env.raycasterGroup.add( this.objHandler.activeObject );              //<------- Hier Testen
             
             // Setze Objekt basierend auf marker Position
             this.objHandler.activeObjectIsPlaced = true;
@@ -260,7 +260,8 @@ class Game{
             this.objHandler.activeObject.name = "placedObject";
             this.objHandler.placedObjects.push( this.objHandler.activeObject );
             //Bearbeite Position und Skalierung
-            this.objHandler.activeObject.scale.setScalar( 1-this.gui.activeElement.children[1].scaleWert );
+            //this.objHandler.activeObject.scale.setScalar( 1-this.gui.activeElement.children[1].scaleWert );
+            this.objHandler.activeObject.scale.setScalar( 0.3 );
             this.objHandler.activeObject.children[0].position.set( 0,0,0 );
             //Schließe Menu und setze relevante Flags zurück
             this.gui.menuVisible = false;
