@@ -134,10 +134,10 @@ class Game{
                 this.objHandler.activeObject = null;
                 this.env.scene.remove( this.objHandler.activeObject );
                 //Hier lösche ale neu hinzugefügten Elemente
-                for(let i=this.env.raycaster.children.length-1; i>=0; i--){
-                    if( this.env.raycaster.children[i]['name'] == 'placedObject' ){
+                for(let i=this.env.raycasterGroup.children.length-1; i>=0; i--){
+                    if( this.env.raycasterGroup.children[i]['name'] == 'placedObject' ){
                         //this.env.scene.remove( this.env.scene.children[i] );
-                        this.env.raycasterGroup.remove( this.env.raycaster.children[i] );               //<----- Hier Testen
+                        this.env.raycasterGroup.remove( this.env.raycasterGroup.children[i] );               //<----- Hier Testen
                         //this.objHandler.placedObjects.splice(i,1);
                     };
                 };
