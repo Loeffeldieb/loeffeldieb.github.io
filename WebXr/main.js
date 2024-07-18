@@ -79,7 +79,7 @@ class Game{
             };
 
             // Update Shader
-            //this.env.animateShader( timestamp, this.env.renderer.domElement.width, this.env.renderer.domElement.height );
+            this.env.animateShader( timestamp, this.env.renderer.domElement.width, this.env.renderer.domElement.height );
             this._drawFrame();
         });
     };
@@ -136,7 +136,8 @@ class Game{
                 //Hier lösche ale neu hinzugefügten Elemente
                 for(let i=this.env.scene.children.length-1; i>=0; i--){
                     if( this.env.scene.children[i]['name'] == 'placedObject' ){
-                        this.env.scene.remove( this.env.scene.children[i] );
+                        //this.env.scene.remove( this.env.scene.children[i] );
+                        this.env.raycasterGroup.remmove( this.env.scene.children[i] );   //<-------- Hier Testen
                         this.objHandler.placedObjects.splice(i,1);
                     };
                 };
@@ -265,7 +266,8 @@ class Game{
             this.gui.activeElement = null;
             //Flag für den BuildModus
             this.objHandler.buildModeActivated = true;
-            this.env.scene.add( this.objHandler.activeObject );
+            this.env.raycasterGroup.add( this.objHandler.activeObject );              //<------- Hier Testen
+            //this.env.scene.add( this.objHandler.activeObject );
         };
 
     };    
