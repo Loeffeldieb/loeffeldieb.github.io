@@ -119,7 +119,7 @@ class Enviroment{
 
 
         box.translateY( 1.6 );
-        box.translateZ( 2.0 );
+        box.translateZ( -2.0 );
         box.rotateX( 180/Math.PI*45 );
         box.rotateY( 180/Math.PI*45 );
         box.castShadow = true;
