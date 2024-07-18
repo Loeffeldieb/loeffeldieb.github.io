@@ -59,9 +59,9 @@ class Game{
                 let session = this.env.renderer.xr.getSession();
                 if(session.inputSources.length > 0){
                     this.env.ctx.fillText(`Trigger: ${session.inputSources[0].gamepad.buttons[0].pressed}`,10, 40);
-                    this.env.ctx.fillText(`A: ${session.inputSources[0].gamepad.buttons[4].pressed}`,10, 60);
-                    this.env.ctx.fillText(`B: ${session.inputSources[0].gamepad.buttons[5].pressed}`,10, 80);
-                    this.env.ctx.fillText(`Menu on: ${this.gui.menuVisible}`,10, 100);
+                    this.env.ctx.fillText(`Scene: ${this.env.scene.children.length}`,10, 60);
+                    this.env.ctx.fillText(`Raycaster: ${this.env.raycasterGroup.children.length}`,10, 80);
+                    this.env.ctx.fillText(`objHandler: ${this.objHandler.placedObjects.length}`,10, 100);
                 };
 
                 this.env.texture.needsUpdate = true;
@@ -137,7 +137,7 @@ class Game{
                 for(let i=this.env.scene.children.length-1; i>=0; i--){
                     if( this.env.scene.children[i]['name'] == 'placedObject' ){
                         this.env.scene.remove( this.env.scene.children[i] );
-                        //this.env.raycasterGroup.remove( this.env.scene.children[i] );               //<----- Hier Testen
+                        this.env.raycasterGroup.remove( this.env.scene.children[i] );               //<----- Hier Testen
                         this.objHandler.placedObjects.splice(i,1);
                     };
                 };
@@ -247,7 +247,7 @@ class Game{
             this.gui.temporaryPlane.setFromNormalAndCoplanarPoint( this.gui.normalWorldSpace, this.gui.firstHit.point);
 
             //this.env.scene.remove( this.objHandler.activeObject );
-            //this.env.raycasterGroup.add( this.objHandler.activeObject );              //<------- Hier Testen
+            this.env.raycasterGroup.add( this.objHandler.activeObject );              //<------- Hier Testen
             
             // Setze Objekt basierend auf marker Position
             this.objHandler.activeObjectIsPlaced = true;
