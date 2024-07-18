@@ -191,8 +191,6 @@ class GUI{
         };
     };    
 
-    
-
 };
 
 export { GUI };
