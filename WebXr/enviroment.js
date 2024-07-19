@@ -120,7 +120,7 @@ class Enviroment{
 
 
         box.translateY( 1.6 );
-        box.translateZ( -2.0 );
+        box.translateZ( -1.0 );
         box.rotateX( 180/Math.PI*45 );
         box.rotateY( 180/Math.PI*45 );
         box.castShadow = true;
@@ -147,13 +147,13 @@ class Enviroment{
         boxGeo2.setIndex(new THREE.BufferAttribute(new Uint16Array(newIndices), 1));
         let box2 = new THREE.Mesh( boxGeo2, boxMat2 );
         box2.translateY( 1.6 );
-        box2.translateZ( -2.0 );
+        box2.translateZ( -1.0 );
         box2.rotateX( 180/Math.PI*45 );
         box2.rotateY( 180/Math.PI*45 );
         box2.renderOrder = -1;
 
         this.raycasterGroup.add( box );
-        this.raycasterGroup.add( box2 )
+        this.scene.add( box2 )
         this.raycasterGroup.add( plane );
         this.scene.add( this.raycasterGroup );
     };
