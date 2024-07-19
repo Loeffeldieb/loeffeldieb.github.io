@@ -108,7 +108,7 @@ class Game{
                 this.gui.a_Button_ON = true;
                 
                 //Toggle Menu nur wenn noch ncihts ausgewählt wurde                         <----------------Menu
-                if( this.objHandler.buildModeActivated = false ){
+                if( this.objHandler.buildModeActivated == false ){
                     this.gui.menuVisible = !this.gui.menuVisible;
                 };
                 // Toggle Menu
