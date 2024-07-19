@@ -104,13 +104,9 @@ class Game{
             };
 
             // Click  A-Button Start
-            if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.a_Button_ON ){
+            if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.a_Button_ON && !this.objHandler.buildModeActivated){
                 this.gui.a_Button_ON = true;
-                
-                //Toggle Menu nur wenn noch ncihts ausgewählt wurde                         <----------------Menu
-                if( this.objHandler.buildModeActivated == false ){
-                    this.gui.menuVisible = !this.gui.menuVisible;
-                };
+                this.gui.menuVisible = !this.gui.menuVisible;
                 // Toggle Menu
                 if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
                 else {
