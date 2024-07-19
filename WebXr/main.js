@@ -126,7 +126,7 @@ class Game{
             };
 
             // Click B-Button Start
-            if(session01.inputSources[0].gamepad.buttons[5].pressed && !this.gui.b_Button_ON){
+            if(session01.inputSources[0].gamepad.buttons[5].pressed && !this.gui.b_Button_ON && !this.objHandler.buildModeActivated){
                 this.gui.b_Button_ON = true;
                 //Remove Stuff from Scene
                 this.objHandler.buildModeActivated = false;
