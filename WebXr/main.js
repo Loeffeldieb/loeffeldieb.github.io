@@ -106,7 +106,11 @@ class Game{
             // Click  A-Button Start
             if(session01.inputSources[0].gamepad.buttons[4].pressed && !this.gui.a_Button_ON ){
                 this.gui.a_Button_ON = true;
-                this.gui.menuVisible = !this.gui.menuVisible;
+                
+                //Toggle Menu nur wenn noch ncihts ausgewählt wurde                         <----------------Menu
+                if( this.objHandler.buildModeActivated = false ){
+                    this.gui.menuVisible = !this.gui.menuVisible;
+                };
                 // Toggle Menu
                 if(this.gui.menuVisible) { this.env.raycasterGroup.add( this.gui.menuGroup ) }
                 else {
@@ -136,9 +140,7 @@ class Game{
                 //Hier lösche ale neu hinzugefügten Elemente
                 for(let i=this.env.raycasterGroup.children.length-1; i>=0; i--){
                     if( this.env.raycasterGroup.children[i]['name'] == 'placedObject' ){
-                        //this.env.scene.remove( this.env.scene.children[i] );
-                        this.env.raycasterGroup.remove( this.env.raycasterGroup.children[i] );               //<----- Hier Testen
-                        //this.objHandler.placedObjects.splice(i,1);
+                        this.env.raycasterGroup.remove( this.env.raycasterGroup.children[i] );               
                     };
                 };
                 this.env.scene.remove( this.gui.lineForRotation )
@@ -247,7 +249,7 @@ class Game{
             this.gui.temporaryPlane.setFromNormalAndCoplanarPoint( this.gui.normalWorldSpace, this.gui.firstHit.point);
 
             //this.env.scene.remove( this.objHandler.activeObject );
-            this.env.raycasterGroup.add( this.objHandler.activeObject );              //<------- Hier Testen
+            this.env.raycasterGroup.add( this.objHandler.activeObject ); 
             
             // Setze Objekt basierend auf marker Position
             this.objHandler.activeObjectIsPlaced = true;
@@ -258,7 +260,6 @@ class Game{
             //Erstelle Kopie aus einem der Menu Objekte
             this.objHandler.activeObject = this.gui.activeElement.children[1].clone();
             this.objHandler.activeObject.name = "placedObject";
-            //this.objHandler.placedObjects.push( this.objHandler.activeObject );
             //Bearbeite Position und Skalierung
             //this.objHandler.activeObject.scale.setScalar( 1-this.gui.activeElement.children[1].scaleWert );
             this.objHandler.activeObject.scale.setScalar( 0.3 );
