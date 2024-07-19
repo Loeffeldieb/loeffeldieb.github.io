@@ -102,7 +102,7 @@ class Enviroment{
 
         // Erstelle Test Box
         const boxGeo = new THREE.BoxGeometry(0.5,0.5,0.5);
-       
+        
         this.shader_mat = new THREE.ShaderMaterial({
             uniforms: {
                 iTime: {value: 0},
@@ -110,6 +110,7 @@ class Enviroment{
             },
             vertexShader: _vs,
             fragmentShader: _fs,
+            side: THREE.BackSide,
         });
 
         const box = new THREE.Mesh(
@@ -124,11 +125,35 @@ class Enviroment{
         box.rotateY( 180/Math.PI*45 );
         box.castShadow = true;
         box.receiveShadow = true;
-        box.name = 'boxy';
 
-        this.boxy = box.clone();
 
-        this.raycasterGroup.add( this.boxy );
+        //Umantelnde Box für Portal Effect
+        let boxGeo2 = new THREE.BoxGeometry( 0.501,0.501,0.501 );
+        let boxMat2 = new THREE.MeshBasicMaterial({ colorWrite: false });
+        let faceIndex = 2;
+        // Create a new index array that excludes the indices corresponding to the vertices of the face
+        let newIndices = [];
+        for (let i = 0; i < boxGeo2.index.count; i += 6) {
+                if (i !== faceIndex * 6) {
+                    newIndices.push(
+                        boxGeo2.index.array[i], 
+                        boxGeo2.index.array[i + 1], 
+                        boxGeo2.index.array[i + 2],
+                        boxGeo2.index.array[i + 3],
+                        boxGeo2.index.array[i + 4],
+                        boxGeo2.index.array[i + 5])
+                };
+        };
+        boxGeo2.setIndex(new THREE.BufferAttribute(new Uint16Array(newIndices), 1));
+        let box2 = new THREE.Mesh( boxGeo2, boxMat2 );
+        box2.translateY( 1.6 );
+        box2.translateZ( -2.0 );
+        box2.rotateX( 180/Math.PI*45 );
+        box2.rotateY( 180/Math.PI*45 );
+        box2.renderOrder = -1;
+
+        this.raycasterGroup.add( box );
+        this.raycasterGroup.add( box2 )
         this.raycasterGroup.add( plane );
         this.scene.add( this.raycasterGroup );
     };
