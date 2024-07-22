@@ -6,7 +6,7 @@ import { XRButton } from 'three/addons/webxr/XRButton.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { GlitchPass } from 'three/examples/jsm/Addons.js';
+import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
 /**************************************************************************************************************************
                                             Klasse für die darstellung der Szene
 ***************************************************************************************************************************/
