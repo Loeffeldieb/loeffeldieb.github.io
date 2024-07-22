@@ -94,19 +94,6 @@ class Enviroment{
         //Eventlistener Für den Select Button am Controller
         //this.controller.addEventListener( 'selectstart', this.onSelectStart );
 	    //this.controller.addEventListener( 'selectend', this.onSelectEnd );
-
-    // //Post Processing                                                                        //<------ PostProcessing
-        this.composer = new EffectComposer( this.renderer );
-        const renderPass = new RenderPass( this.scene, this.camera );
-        this.composer.addPass( renderPass );
-
-        const glitchPass = new GlitchPass( );
-        this.composer.addPass( glitchPass );
-
-        const outputPass = new OutputPass();
-        this.composer.addPass( outputPass );
-
-
     };
 
     _basicSetup(){
