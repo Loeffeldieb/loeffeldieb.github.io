@@ -64,7 +64,7 @@ class Game{
                     //this.env.ctx.fillText(`objHandler: ${this.objHandler.placedObjects.length}`,10, 100);
                 };
 
-                this.env.texture.needsUpdate = true;
+                this.env.debugTexture.needsUpdate = true;
             };
 
             //Menu Spezifische Funktionen
@@ -85,9 +85,8 @@ class Game{
     };
 
     _drawFrame(){
-        this.env.composer.render(); //Post Processing
-        
-        //this.env.renderer.render( this.env.scene, this.env.camera );
+        //this.env.composer.render(); //Post Processing
+        this.env.renderer.render( this.env.scene, this.env.camera );
     };
 
     manageControllerButtonEvents(){
