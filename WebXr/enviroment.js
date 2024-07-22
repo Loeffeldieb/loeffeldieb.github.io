@@ -147,7 +147,7 @@ class Enviroment{
             innerBoxMat
         );
         //Platziere innere Box
-        innerBox.translateY( 1.6 );
+        innerBox.translateY( 0.5 );
         innerBox.translateZ( -0.0 );
         innerBox.castShadow = true;
         innerBox.receiveShadow = true;
@@ -173,7 +173,7 @@ class Enviroment{
         outerBoxGeo.setIndex(new THREE.BufferAttribute(new Uint16Array(newIndices), 1));
         let outerBox = new THREE.Mesh( outerBoxGeo, outerBoxMat );
         //Platziere äußere Box
-        outerBox.translateY( 1.6 );
+        outerBox.translateY( 0.5 );
         outerBox.translateZ( -0.0 );
         outerBox.renderOrder = -1;
 
@@ -197,7 +197,7 @@ class Enviroment{
         windowPlaneGeo.setIndex(new THREE.BufferAttribute(new Uint16Array( planeIndices ), 1));
         let windowPlane = new THREE.Mesh( windowPlaneGeo, new THREE.MeshBasicMaterial({ color: 0xFF0000, colorWrite: false }) );
         //Platziere Fenster Plane
-        windowPlane.translateY( 1.6 + 0.25 );
+        windowPlane.translateY( 0.5 + 0.25 );
         windowPlane.rotateX( (Math.PI/180) * 270 );
         windowPlane.renderOrder = -1;
 
