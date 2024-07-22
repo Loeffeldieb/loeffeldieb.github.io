@@ -85,8 +85,7 @@ class Game{
     };
 
     _drawFrame(){
-        this.env.composer.render(); //Post Processing
-        //this.env.renderer.render( this.env.scene, this.env.camera );
+        this.env.renderer.render( this.env.scene, this.env.camera );
     };
 
     manageControllerButtonEvents(){
