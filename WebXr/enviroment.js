@@ -5,8 +5,8 @@ import { XRButton } from 'three/addons/webxr/XRButton.js';
 //Post Processing
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GlitchPass } from 'three/examples/jsm/Addons.js';
 /**************************************************************************************************************************
                                             Klasse für die darstellung der Szene
 ***************************************************************************************************************************/
@@ -96,15 +96,15 @@ class Enviroment{
 	    //this.controller.addEventListener( 'selectend', this.onSelectEnd );
 
     // //Post Processing                                                                        //<------ PostProcessing
-    // this.composer = new EffectComposer( this.renderer );
-    // const renderPass = new RenderPass( this.scene, this.camera );
-    // this.composer.addPass( renderPass );
+        this.composer = new EffectComposer( this.renderer );
+        const renderPass = new RenderPass( this.scene, this.camera );
+        this.composer.addPass( renderPass );
 
-    // const glitchPass = new RenderPixelatedPass( 8, this.scene, this.camera );
-    // this.composer.addPass( glitchPass );
+        const glitchPass = new GlitchPass( );
+        this.composer.addPass( glitchPass );
 
-    // const outputPass = new OutputPass();
-    // this.composer.addPass( outputPass );
+        const outputPass = new OutputPass();
+        this.composer.addPass( outputPass );
 
 
     };
@@ -130,21 +130,9 @@ class Enviroment{
             fragmentShader: _fs,
             side: THREE.BackSide,
         });
-        const loader = new THREE.TextureLoader();
-        const innerBoxTexture = loader.load(
-          './foo.jpg',
-          () => {
-            //innerBoxTexture.mapping = THREE.EquirectangularReflectionMapping;
-            innerBoxTexture.colorSpace = THREE.SRGBColorSpace;
-          });
-        const innerBoxMat = new THREE.MeshBasicMaterial({
-            map: innerBoxTexture,
-            side: THREE.BackSide
-        });
         const innerBox = new THREE.Mesh(
             innerBoxGeo,
-            //this.shader_mat,
-            innerBoxMat
+            this.shader_mat,
         );
         //Platziere innere Box
         innerBox.translateY( 0.5 );
