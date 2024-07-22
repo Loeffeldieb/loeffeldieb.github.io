@@ -75,7 +75,7 @@ class Enviroment{
         this.ctx.canvas.height = 256;
         this.ctx.fillStyle = '#FFF';
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.texture = new THREE.CanvasTexture(this.ctx.canvas);
+        this.debugTexture = new THREE.CanvasTexture(this.ctx.canvas);
         
         
         //Controller Variablen für Controller und Hand
@@ -95,33 +95,32 @@ class Enviroment{
         //this.controller.addEventListener( 'selectstart', this.onSelectStart );
 	    //this.controller.addEventListener( 'selectend', this.onSelectEnd );
 
-    //Post Processing
-    this.composer = new EffectComposer( this.renderer );
-    const renderPass = new RenderPass( this.scene, this.camera );
-    this.composer.addPass( renderPass );
+    // //Post Processing                                                                        //<------ PostProcessing
+    // this.composer = new EffectComposer( this.renderer );
+    // const renderPass = new RenderPass( this.scene, this.camera );
+    // this.composer.addPass( renderPass );
 
-    const glitchPass = new RenderPixelatedPass( 8, this.scene, this.camera );
-    this.composer.addPass( glitchPass );
+    // const glitchPass = new RenderPixelatedPass( 8, this.scene, this.camera );
+    // this.composer.addPass( glitchPass );
 
-    const outputPass = new OutputPass();
-    this.composer.addPass( outputPass );
+    // const outputPass = new OutputPass();
+    // this.composer.addPass( outputPass );
 
 
     };
 
     _basicSetup(){
-        // Erstelle Test Plane
-        const planeGeo = new THREE.PlaneGeometry(100,100,10,10);
-        planeGeo.rotateX(-Math.PI / 2);
-        const plane = new THREE.Mesh(
-            planeGeo,
+        // Erstelle Boden unsichtbar
+        const groundPlaneGeo = new THREE.PlaneGeometry(100,100,10,10);
+        groundPlaneGeo.rotateX(-Math.PI / 2);
+        const groundPlane = new THREE.Mesh(
+            groundPlaneGeo,
             new THREE.MeshPhongMaterial({color: 0xDDDD33, colorWrite: false})
         );
-        plane.receiveShadow = true;
+        groundPlane.receiveShadow = true;
 
-        // Erstelle Test Box
-        const boxGeo = new THREE.BoxGeometry(0.5,0.5,0.5);
-        
+        // Erstelle Innere Box mit Textur
+        const innerBoxGeo = new THREE.BoxGeometry(0.499,0.499,0.499);
         this.shader_mat = new THREE.ShaderMaterial({
             uniforms: {
                 iTime: {value: 0},
@@ -131,49 +130,81 @@ class Enviroment{
             fragmentShader: _fs,
             side: THREE.BackSide,
         });
-
-        const box = new THREE.Mesh(
-            boxGeo,
-            this.shader_mat
+        const loader = new THREE.TextureLoader();
+        const innerBoxTexture = loader.load(
+          './foo.jpg',
+          () => {
+            //innerBoxTexture.mapping = THREE.EquirectangularReflectionMapping;
+            innerBoxTexture.colorSpace = THREE.SRGBColorSpace;
+          });
+        const innerBoxMat = new THREE.MeshBasicMaterial({
+            map: innerBoxTexture,
+            side: THREE.BackSide
+        });
+        const innerBox = new THREE.Mesh(
+            innerBoxGeo,
+            //this.shader_mat,
+            innerBoxMat
         );
+        //Platziere innere Box
+        innerBox.translateY( 1.6 );
+        innerBox.translateZ( -0.0 );
+        innerBox.castShadow = true;
+        innerBox.receiveShadow = true;
 
-
-        box.translateY( 1.6 );
-        box.translateZ( -1.0 );
-        box.rotateX( 180/Math.PI*45 );
-        box.rotateY( 180/Math.PI*45 );
-        box.castShadow = true;
-        box.receiveShadow = true;
-
-
-        //Umantelnde Box für Portal Effect
-        let boxGeo2 = new THREE.BoxGeometry( 0.501,0.501,0.501 );
-        let boxMat2 = new THREE.MeshBasicMaterial({ colorWrite: false });
+        //Erstelle äußere Box unsichtbar
+        let outerBoxGeo = new THREE.BoxGeometry( 0.5,0.5,0.5 );
+        let outerBoxMat = new THREE.MeshBasicMaterial({ color: 0xFF0000, colorWrite: false });
         let faceIndex = 2;
-        // Create a new index array that excludes the indices corresponding to the vertices of the face
+        // erstelle neues IndexArray, das die die unerwünschten Flächen ausschließt
         let newIndices = [];
-        for (let i = 0; i < boxGeo2.index.count; i += 6) {
+        for (let i = 0; i < outerBoxGeo.index.count; i += 6) {
                 if (i !== faceIndex * 6) {
                     newIndices.push(
-                        boxGeo2.index.array[i], 
-                        boxGeo2.index.array[i + 1], 
-                        boxGeo2.index.array[i + 2],
-                        boxGeo2.index.array[i + 3],
-                        boxGeo2.index.array[i + 4],
-                        boxGeo2.index.array[i + 5])
+                        outerBoxGeo.index.array[i], 
+                        outerBoxGeo.index.array[i + 1], 
+                        outerBoxGeo.index.array[i + 2],
+                        outerBoxGeo.index.array[i + 3],
+                        outerBoxGeo.index.array[i + 4],
+                        outerBoxGeo.index.array[i + 5]
+                    );
                 };
         };
-        boxGeo2.setIndex(new THREE.BufferAttribute(new Uint16Array(newIndices), 1));
-        let box2 = new THREE.Mesh( boxGeo2, boxMat2 );
-        box2.translateY( 1.6 );
-        box2.translateZ( -1.0 );
-        box2.rotateX( 180/Math.PI*45 );
-        box2.rotateY( 180/Math.PI*45 );
-        box2.renderOrder = -1;
+        outerBoxGeo.setIndex(new THREE.BufferAttribute(new Uint16Array(newIndices), 1));
+        let outerBox = new THREE.Mesh( outerBoxGeo, outerBoxMat );
+        //Platziere äußere Box
+        outerBox.translateY( 1.6 );
+        outerBox.translateZ( -0.0 );
+        outerBox.renderOrder = -1;
 
-        this.raycasterGroup.add( box );
-        this.scene.add( box2 )
-        this.raycasterGroup.add( plane );
+        //erstelle Plane als Fenster
+        let windowPlaneGeo = new THREE.PlaneGeometry(0.5, 0.5, 7, 7);
+        //entferene Face aus der Plane
+        let planeIndex = 24;
+        let planeIndices = [];
+        for( let i=0; i<windowPlaneGeo.index.count; i+=6 ){
+            if( i !== planeIndex * 6 ){
+                planeIndices.push(
+                    windowPlaneGeo.index.array[i],
+                    windowPlaneGeo.index.array[i + 1],
+                    windowPlaneGeo.index.array[i + 2],
+                    windowPlaneGeo.index.array[i + 3],
+                    windowPlaneGeo.index.array[i + 4],
+                    windowPlaneGeo.index.array[i + 5]
+                );
+            };
+        };
+        windowPlaneGeo.setIndex(new THREE.BufferAttribute(new Uint16Array( planeIndices ), 1));
+        let windowPlane = new THREE.Mesh( windowPlaneGeo, new THREE.MeshBasicMaterial({ color: 0xFF0000, colorWrite: false }) );
+        //Platziere Fenster Plane
+        windowPlane.translateY( 1.6 + 0.25 );
+        windowPlane.rotateX( (Math.PI/180) * 270 );
+        windowPlane.renderOrder = -1;
+
+        this.scene.add( windowPlane );
+        this.raycasterGroup.add( innerBox );
+        this.scene.add( outerBox )
+        this.raycasterGroup.add( groundPlane );
         this.scene.add( this.raycasterGroup );
     };
 
@@ -185,18 +216,18 @@ class Enviroment{
         this.scene.remove( obj );
     };
 
-    _createTestPlane(){
-        const testPlane = new THREE.Mesh(
+    _createDebugPlane(){
+        const debugPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(3,3,3,3),
             new THREE.MeshBasicMaterial({
-                map: this.texture
+                map: this.debugTexture
             })
         );
-        testPlane.position.set( 0,1.5,-3 );
-        testPlane.castShadow = true;
-        testPlane.receiveShadow = true;
+        debugPlane.position.set( 0,1.5,-3 );
+        debugPlane.castShadow = true;
+        debugPlane.receiveShadow = true;
 
-        this.raycasterGroup.add( testPlane );
+        this.raycasterGroup.add( debugPlane );
     };
 
     animateShader( time, w, h ){
