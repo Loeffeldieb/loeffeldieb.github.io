@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import { _vs, _fs } from './shaders.js';
 import { XRButton } from 'three/addons/webxr/XRButton.js';
+
+//Post Processing
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 /**************************************************************************************************************************
                                             Klasse für die darstellung der Szene
 ***************************************************************************************************************************/
@@ -88,6 +94,19 @@ class Enviroment{
         //Eventlistener Für den Select Button am Controller
         //this.controller.addEventListener( 'selectstart', this.onSelectStart );
 	    //this.controller.addEventListener( 'selectend', this.onSelectEnd );
+
+    //Post Processing
+    this.composer = new EffectComposer( this.renderer );
+    const renderPass = new RenderPass( this.scene, this.camera );
+    this.composer.addPass( renderPass );
+
+    const glitchPass = new RenderPixelatedPass( 8, this.scene, this.camera );
+    this.composer.addPass( glitchPass );
+
+    const outputPass = new OutputPass();
+    this.composer.addPass( outputPass );
+
+
     };
 
     _basicSetup(){
