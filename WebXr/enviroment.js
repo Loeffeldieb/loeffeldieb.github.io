@@ -2,11 +2,6 @@ import * as THREE from 'three';
 import { _vs, _fs } from './shaders.js';
 import { XRButton } from 'three/addons/webxr/XRButton.js';
 
-//Post Processing
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
 /**************************************************************************************************************************
                                             Klasse für die darstellung der Szene
 ***************************************************************************************************************************/
